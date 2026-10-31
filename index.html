@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bit a Bit</title>
+<meta name="description" content="Start with one bit. Find out what lies beyond the last byte. An incremental browser game in 7 languages.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
@@ -254,6 +255,12 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 
 /* ---------- v5: dicas, pesquisa, eventos, minijogos, ranking ---------- */
 .sound+.sound{margin-left:0}
+.lang{margin-left:auto}
+.lang+.sound{margin-left:0}
+.lang select{font:inherit;font-weight:600;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:8px;padding:6px 8px;cursor:pointer}
+.lang select option{color:#16301f;background:#f2f5ee}
+.lang select:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .tip{display:flex;align-items:center;gap:10px;width:100%;max-width:520px;background:var(--chip);color:#eef1ee;border:1.5px solid var(--copper-hi);border-radius:10px;padding:10px 12px;text-align:left;font-size:15px;box-shadow:0 0 18px rgba(240,189,114,.3)}
 .tip[hidden]{display:none}
 .tip-dot{flex:none;width:9px;height:9px;border-radius:50%;background:#5dff8a;box-shadow:0 0 8px #5dff8a;animation:blink 1s steps(2) infinite}
@@ -282,7 +289,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
   box-shadow:0 0 14px rgba(255,90,71,.6);animation:wander 2s ease-in-out infinite alternate}
 @keyframes wander{to{transform:translate(var(--dx),var(--dy)) rotate(8deg)}}
 .gen.infected{border-color:#ff5a47;box-shadow:inset 0 0 0 1px #ff5a47}
-.gen.infected .gname::after{content:" (infectado)";color:#ff8f80;font-weight:500}
+.gen.infected .gname::after{content:" (" var(--inf,"infected") ")";color:#ff8f80;font-weight:500}
 .part.infected{border-color:#ff5a47;color:#ff8f80;animation:shake .3s infinite}
 @keyframes shake{50%{transform:translateX(1px)}}
 .packet.fix{border-color:#5dff8a;color:#c9ffd8;box-shadow:0 0 0 4px rgba(93,255,138,.25),0 0 24px rgba(93,255,138,.6)}
@@ -368,110 +375,111 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 <body>
 <header class="top">
   <h1 class="logo" id="logo">Bit a Bit</h1>
-  <p class="tag">Comece com um bit. Descubra o que existe depois do último byte.</p>
-  <button class="sound" id="musicBtn" aria-pressed="false">Música desligada</button>
-  <button class="sound" id="soundBtn" aria-pressed="true">Som ligado</button>
+  <p class="tag" data-i18n="tagline"></p>
+  <label class="lang"><span class="vh" data-i18n="langLabel"></span><select id="langSel"></select></label>
+  <button class="sound" id="musicBtn" aria-pressed="false"></button>
+  <button class="sound" id="soundBtn" aria-pressed="true"></button>
 </header>
 
 <main class="wrap">
   <div class="col">
-    <section class="board main-board" id="mainBoard" aria-label="Seus dados">
+    <section class="board main-board" id="mainBoard" data-i18n-aria="ariaBoard">
       <canvas class="pcb" id="pcb" aria-hidden="true"></canvas>
-      <div class="tip" id="tip" hidden><span class="tip-dot"></span><span id="tipText"></span><button class="tip-x" id="tipClose" aria-label="Fechar dica">×</button></div>
-      <div class="era"><span class="era-name" id="eraName">Era mecânica</span><span class="era-desc" id="eraDesc"></span></div>
+      <div class="tip" id="tip" hidden><span class="tip-dot"></span><span id="tipText"></span><button class="tip-x" id="tipClose" data-i18n-aria="ariaTipClose">×</button></div>
+      <div class="era"><span class="era-name" id="eraName"></span><span class="era-desc" id="eraDesc"></span></div>
       <div class="readout">
         <div class="amount"><span id="amt">0</span><span id="unit">bits</span></div>
-        <div class="rate" id="rate">0 bits por segundo</div>
+        <div class="rate" id="rate"></div>
         <div class="buff" id="buff"></div>
-        <div class="leds" id="leds" title="Hmm, dá para clicar nesses LEDs?"></div>
+        <div class="leds" id="leds" data-i18n-title="ledsTitle"></div>
       </div>
-      <button class="chip" id="chip" data-era="0" aria-label="Clique para gerar bits">
-        <span class="die"><span class="notch"></span><span class="die-ref" id="dieRef">MEC-01</span><span class="die-sub" id="perclick">+1 bit por clique</span></span>
+      <button class="chip" id="chip" data-era="0" data-i18n-aria="ariaChip">
+        <span class="die"><span class="notch"></span><span class="die-ref" id="dieRef">MEC-01</span><span class="die-sub" id="perclick"></span></span>
       </button>
       <div class="next">
-        <div class="next-label"><span id="nextName">Rumo ao Byte</span><span id="nextPct">0%</span></div>
+        <div class="next-label"><span id="nextName"></span><span id="nextPct">0%</span></div>
         <div class="bar"><div class="fill" id="nextFill"></div></div>
       </div>
       <div class="goal" id="goal"></div>
-      <div class="bench" id="bench"><span class="bench-empty" id="benchEmpty">Os componentes que você comprar aparecem aqui na placa.</span></div>
+      <div class="bench" id="bench"><span class="bench-empty" id="benchEmpty" data-i18n="benchEmpty"></span></div>
     </section>
 
     <section class="board missions">
-      <div class="sec-head"><h2>Contratos</h2><span id="mDone">0 concluídos</span></div>
-      <p class="sub">Pedidos rápidos com recompensa. Ao resgatar um, outro chega na hora.</p>
+      <div class="sec-head"><h2 data-i18n="hMissions"></h2><span id="mDone"></span></div>
+      <p class="sub" data-i18n="subMissions"></p>
       <div id="mList"></div>
     </section>
 
     <section class="board upgrades">
-      <h2>Melhorias</h2>
+      <h2 data-i18n="hUpgrades"></h2>
       <div id="upgs"></div>
-      <p class="empty" id="upgEmpty">Nenhuma melhoria disponível ainda. Elas aparecem conforme você junta bits e compra componentes.</p>
+      <p class="empty" id="upgEmpty" data-i18n="upgEmpty"></p>
     </section>
 
     <section class="board research">
-      <div class="sec-head"><h2>Pesquisa</h2><span id="rpCount">0 pontos disponíveis</span></div>
-      <p class="sub">Você ganha pontos ao chegar em uma nova era, ao comprimir e ao descobrir segredos. Cada ramo muda seu jeito de jogar.</p>
+      <div class="sec-head"><h2 data-i18n="hResearch"></h2><span id="rpCount"></span></div>
+      <p class="sub" data-i18n="subResearch"></p>
       <div class="rwrap"><div id="resGrid"></div></div>
     </section>
 
     <section class="board term-board" id="termBoard" hidden>
-      <div class="sec-head"><h2>Transmissão</h2><span id="loreCount"></span></div>
-      <p class="sub">Um sinal desconhecido está chegando pelo barramento. Cada nova unidade decodifica um pedaço.</p>
+      <div class="sec-head"><h2 data-i18n="hTerm"></h2><span id="loreCount"></span></div>
+      <p class="sub" data-i18n="subTerm"></p>
       <div class="term" id="term" role="log" aria-live="polite"></div>
     </section>
 
     <section class="board achs">
-      <div class="sec-head"><h2>Conquistas</h2><span id="achCount">0 de 0</span></div>
-      <p class="sub">Cada conquista aumenta toda a produção em 1%. As cor-de-rosa são secretas: leia as pistas.</p>
+      <div class="sec-head"><h2 data-i18n="hAch"></h2><span id="achCount"></span></div>
+      <p class="sub" data-i18n="subAch"></p>
       <div id="achGrid"></div>
     </section>
 
     <section class="board ranking" id="rankBoard">
-      <div class="sec-head"><h2>Ranking</h2></div>
-      <p class="sub">Quem já gerou mais bits desde sempre. Seu recorde é enviado sozinho quando você chega numa nova unidade, era ou compressão.</p>
+      <div class="sec-head"><h2 data-i18n="hRank"></h2></div>
+      <p class="sub" data-i18n="subRank"></p>
       <ol class="rank" id="rankList"></ol>
-      <div class="rank-foot"><button class="btn" id="rankBtn" disabled>Enviar meu recorde</button><span id="rankMsg"></span></div>
+      <div class="rank-foot"><button class="btn" id="rankBtn" disabled data-i18n="rankBtn"></button><span id="rankMsg"></span></div>
     </section>
 
     <section class="board comp" id="comp" hidden>
-      <h2>Compressão</h2>
-      <p>Comprimir recomeça o jogo do zero, mas transforma tudo o que você já gerou em <strong>algoritmos</strong>. Cada algoritmo aumenta toda a produção e os cliques em 10%, para sempre. Conquistas, segredos e a transmissão são mantidos.</p>
+      <h2 data-i18n="hComp"></h2>
+      <p data-i18n-html="compText"></p>
       <p id="compInfo"></p>
-      <button class="btn" id="compBtn">Comprimir</button>
+      <button class="btn" id="compBtn"></button>
     </section>
 
     <section class="board stats">
-      <h2>Estatísticas</h2>
+      <h2 data-i18n="hStats"></h2>
       <dl>
-        <dt>Gerado nesta partida</dt><dd id="stTotal">0</dd>
-        <dt>Gerado desde sempre</dt><dd id="stAll">0</dd>
-        <dt>Dígitos do total</dt><dd id="stDigits">1</dd>
-        <dt>Cliques no chip</dt><dd id="stClicks">0</dd>
-        <dt>Overclocks</dt><dd id="stOver">0</dd>
-        <dt>Pacotes capturados</dt><dd id="stPackets">0</dd>
-        <dt>Contratos concluídos</dt><dd id="stMis">0</dd>
-        <dt>Bônus de conquistas</dt><dd id="stAch">+0%</dd>
-        <dt>Algoritmos</dt><dd id="stAlgos">0</dd>
-        <dt>Pontos de pesquisa</dt><dd id="stRes">0</dd>
-        <dt>Vírus eliminados</dt><dd id="stVir">0</dd>
-        <dt>Minijogos vencidos</dt><dd id="stMg">0</dd>
-        <dt>Tempo de jogo</dt><dd id="stTime">0 s</dd>
+        <dt data-i18n="st.total"></dt><dd id="stTotal">0</dd>
+        <dt data-i18n="st.all"></dt><dd id="stAll">0</dd>
+        <dt data-i18n="st.digits"></dt><dd id="stDigits">1</dd>
+        <dt data-i18n="st.clicks"></dt><dd id="stClicks">0</dd>
+        <dt data-i18n="st.over"></dt><dd id="stOver">0</dd>
+        <dt data-i18n="st.packets"></dt><dd id="stPackets">0</dd>
+        <dt data-i18n="st.mis"></dt><dd id="stMis">0</dd>
+        <dt data-i18n="st.ach"></dt><dd id="stAch">+0%</dd>
+        <dt data-i18n="st.algos"></dt><dd id="stAlgos">0</dd>
+        <dt data-i18n="st.res"></dt><dd id="stRes">0</dd>
+        <dt data-i18n="st.vir"></dt><dd id="stVir">0</dd>
+        <dt data-i18n="st.mg"></dt><dd id="stMg">0</dd>
+        <dt data-i18n="st.time"></dt><dd id="stTime">0 s</dd>
       </dl>
-      <button class="btn ghost" id="resetBtn">Apagar progresso</button>
-      <p class="foot">O progresso é salvo automaticamente neste navegador. Os números usam BigInt, então não existe teto.</p>
+      <button class="btn ghost" id="resetBtn"></button>
+      <p class="foot" data-i18n="statsFoot"></p>
     </section>
 
     <section class="board debug">
-      <h2>Debug</h2>
-      <p class="sub">Adiciona bits na hora para testar o jogo.</p>
+      <h2 data-i18n="hDebug"></h2>
+      <p class="sub" data-i18n="subDebug"></p>
       <div class="dbg-grid" id="dbgGrid"></div>
     </section>
   </div>
 
-  <section class="board store" aria-label="Loja de componentes">
+  <section class="board store" data-i18n-aria="ariaStore">
     <div class="store-head">
-      <h2>Componentes</h2>
-      <div class="qty" role="group" aria-label="Quantidade por compra">
+      <h2 data-i18n="hStore"></h2>
+      <div class="qty" role="group" data-i18n-aria="ariaQty">
         <button data-q="1" aria-pressed="true">×1</button>
         <button data-q="10" aria-pressed="false">×10</button>
         <button data-q="100" aria-pressed="false">×100</button>
@@ -482,15 +490,56 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 </main>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<button class="hud" id="hud" aria-label="Voltar ao chip"><span class="hud-logo">Bit a Bit</span><span class="hud-amt" id="hudAmt"></span><span class="hud-rate" id="hudRate"></span></button>
-<div class="modal" id="modal" hidden><div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="mhead"><h2 id="mTitle"></h2><span id="mTime"></span></div><div class="mbar"><div id="mBar"></div></div><p class="msub" id="mSub"></p><div id="mBody"></div><div class="mfoot"><button class="btn ghost" id="mClose">Desistir</button></div></div></div>
+<button class="hud" id="hud" data-i18n-aria="ariaHud"><span class="hud-logo">Bit a Bit</span><span class="hud-amt" id="hudAmt"></span><span class="hud-rate" id="hudRate"></span></button>
+<div class="modal" id="modal" hidden><div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="mhead"><h2 id="mTitle"></h2><span id="mTime"></span></div><div class="mbar"><div id="mBar"></div></div><p class="msub" id="mSub"></p><div id="mBody"></div><div class="mfoot"><button class="btn ghost" id="mClose" data-i18n="giveUp"></button></div></div></div>
 <div class="splash" id="splash" hidden><pre id="splashText"></pre></div>
 
+<script src="i18n/en.js"></script>
+<script src="i18n/pt-BR.js"></script>
+<script src="i18n/es.js"></script>
+<script src="i18n/ja.js"></script>
+<script src="i18n/ko.js"></script>
+<script src="i18n/de.js"></script>
+<script src="i18n/it.js"></script>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ---------- Idioma ---------- */
+const LANGS=['en','pt-BR','es','ja','ko','de','it'],LANG_KEY='bit-a-bit-lang';
+function pickLang(){
+  let v=null;try{v=localStorage.getItem(LANG_KEY)}catch(e){}
+  if(v&&LANGS.includes(v)&&I18N[v])return v;
+  for(const n of (navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'en'])){
+    const l=String(n).toLowerCase();
+    const m=LANGS.find(x=>x.toLowerCase()===l)||LANGS.find(x=>x.split('-')[0].toLowerCase()===l.split('-')[0]);
+    if(m&&I18N[m])return m;
+  }
+  return 'en';
+}
+const LANG=pickLang();
+const T=Object.assign({},I18N.en,I18N[LANG]||{});
+// Objetos aninhados caem para o inglês chave por chave quando a tradução está incompleta.
+for(const k in I18N.en){const e=I18N.en[k],o=(I18N[LANG]||{})[k];if(e&&typeof e==='object'&&!Array.isArray(e)&&o&&typeof o==='object'&&!Array.isArray(o))T[k]=Object.assign({},e,o)}
+const LOC=T.locale;
+const tk=path=>path.split('.').reduce((o,k)=>o&&o[k],T);
+document.documentElement.lang=T.htmlLang;
+document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=tk(el.dataset.i18n)});
+document.querySelectorAll('[data-i18n-html]').forEach(el=>{el.innerHTML=tk(el.dataset.i18nHtml)});
+document.querySelectorAll('[data-i18n-aria]').forEach(el=>{el.setAttribute('aria-label',tk(el.dataset.i18nAria))});
+document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=tk(el.dataset.i18nTitle)});
+document.documentElement.style.setProperty('--inf',JSON.stringify(T.infected));
+(function(){
+  const sel=$('langSel');
+  LANGS.forEach(l=>{if(!I18N[l])return;const o=document.createElement('option');o.value=l;o.lang=I18N[l].htmlLang;o.textContent=I18N[l].name;sel.appendChild(o)});
+  sel.value=LANG;
+  sel.addEventListener('change',()=>{
+    try{localStorage.setItem(LANG_KEY,sel.value);sessionStorage.setItem('bit-a-bit-nosplash','1')}catch(e){}
+    save();location.reload();
+  });
+})();
 
 /* ---------- Números grandes (BigInt) ----------
    Toda quantidade é guardada como BigInt em milésimos de bit (mb). */
@@ -499,114 +548,83 @@ const LOG2_10=Math.log2(10);
 function big(x){if(!(x>0)||!isFinite(x))return 0n;const v=x*1000;return v<9e15?BigInt(Math.round(v)):BigInt(v)}
 function fromLog10(L){if(!isFinite(L))return 0n;if(L<15)return BigInt(Math.max(0,Math.round(Math.pow(10,L))));const e=Math.floor(L)-15;return BigInt(Math.round(Math.pow(10,L-e)))*(10n**BigInt(e))}
 function log10Big(b){if(b<=0n)return -Infinity;const s=b.toString();const k=Math.min(16,s.length);return Math.log10(Number(s.slice(0,k)))+(s.length-k)}
-const nf=(v,d)=>v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
-function fmtCount(n){if(n<1e9)return Math.floor(n).toLocaleString('pt-BR');const e=Math.floor(Math.log10(n));return nf(n/Math.pow(10,e),2)+'e'+e}
+const nf=(v,d)=>v.toLocaleString(LOC,{minimumFractionDigits:d,maximumFractionDigits:d});
+function fmtCount(n){if(n<1e9)return Math.floor(n).toLocaleString(LOC);const e=Math.floor(Math.log10(n));return nf(n/Math.pow(10,e),2)+'e'+e}
 
 /* ---------- Eras ---------- */
-const ERAS=[
-  {name:'Era mecânica',chip:'MEC-01',desc:'Chaves, cartões e relés estalando. Tudo começa no clique.'},
-  {name:'Era das válvulas',chip:'VLV-46',desc:'Salas inteiras de válvulas brilhando e esquentando o ar.'},
-  {name:'Era do transistor',chip:'TRN-47',desc:'O computador encolhe e para de queimar a cada hora.'},
-  {name:'Era do silício',chip:'CPU-71',desc:'Milhões de transistores num único pedaço de silício.'},
-  {name:'Era da internet',chip:'NET-91',desc:'Tudo conectado. Os dados viajam o mundo em milissegundos.'},
-  {name:'Era quântica',chip:'QBT-25',desc:'Zero e um ao mesmo tempo. A física vira processador.'},
-  {name:'Era da inteligência',chip:'NRL-∞',desc:'Os dados começam a gerar mais dados sozinhos.'},
-  {name:'Era cósmica',chip:'COS-Ω',desc:'Estrelas, buracos negros e universos inteiros viram memória.'},
-  {name:'Era do sinal',chip:'SIG-??',desc:'Além da escala. Algo do outro lado está respondendo.'},
-];
+const ERAS=['MEC-01','VLV-46','TRN-47','CPU-71','NET-91','QBT-25','NRL-∞','COS-Ω','SIG-??'].map((chip,i)=>Object.assign({chip},T.eras[i]));
 
 /* ---------- Componentes ---------- */
 const G=[
-  {id:'sw', ref:'SW1',era:0,name:'Interruptor',pl:'interruptores',desc:'Liga, desliga. Um bit de cada vez.',cost:15,bps:0.1},
-  {id:'pc', ref:'PNC',era:0,name:'Cartão perfurado',pl:'cartões perfurados',desc:'Furos no papel guardam informação desde os teares do século XIX.',cost:40,bps:0.3},
-  {id:'rl', ref:'K1', era:0,name:'Relé',pl:'relés',desc:'Eletroímã que estala sozinho, como nos computadores dos anos 1940.',cost:100,bps:1},
-  {id:'vt', ref:'V1', era:1,name:'Válvula',pl:'válvulas',desc:'Esquenta, brilha e às vezes queima. Mas computa.',cost:1100,bps:8},
-  {id:'fm', ref:'TAP',era:1,name:'Fita magnética',pl:'fitas magnéticas',desc:'Rolos girando para frente e para trás, cheios de dados.',cost:3600,bps:20},
-  {id:'tr', ref:'Q1', era:2,name:'Transistor',pl:'transistores',desc:'A invenção que encolheu o computador.',cost:12000,bps:47},
-  {id:'ic', ref:'U1', era:3,name:'Circuito integrado',pl:'circuitos integrados',desc:'Milhares de transistores num pedaço de silício.',cost:130000,bps:260},
-  {id:'fd', ref:'FDD',era:3,name:'Disquete',pl:'disquetes',desc:'1,44 MB de pura nostalgia.',cost:420000,bps:600},
-  {id:'cpu',ref:'CPU',era:3,name:'Microprocessador',pl:'microprocessadores',desc:'Um computador inteiro dentro de um chip.',cost:1.4e6,bps:1400},
-  {id:'hd', ref:'HDD',era:4,name:'Disco rígido',pl:'discos rígidos',desc:'Pratos girando a 7.200 rotações por minuto.',cost:5.3e6,bps:3300},
-  {id:'srv',ref:'SRV',era:4,name:'Servidor',pl:'servidores',desc:'Roda dia e noite num rack barulhento.',cost:2e7,bps:7800},
-  {id:'cl', ref:'CLD',era:4,name:'Nuvem',pl:'nuvens',desc:'O computador de outra pessoa, só que gigante.',cost:8e7,bps:18500},
-  {id:'dc', ref:'DC', era:4,name:'Data center',pl:'data centers',desc:'Corredores de servidores e ar-condicionado no máximo.',cost:3.3e8,bps:44000},
-  {id:'hpc',ref:'HPC',era:4,name:'Supercomputador',pl:'supercomputadores',desc:'Simula clima, galáxias e proteínas.',cost:5.1e9,bps:260000},
-  {id:'qpu',ref:'QPU',era:5,name:'Computador quântico',pl:'computadores quânticos',desc:'Seus qubits são 0 e 1 ao mesmo tempo.',cost:7.5e10,bps:1.6e6},
-  {id:'dna',ref:'DNA',era:5,name:'Armazenamento em DNA',pl:'fitas de DNA',desc:'Um grama de DNA guarda centenas de petabytes.',cost:2.7e11,bps:4e6},
-  {id:'nn', ref:'NN', era:6,name:'Rede neural global',pl:'redes neurais',desc:'Treinada em tudo, gera dados sem parar.',cost:1e12,bps:1e7},
-  {id:'dys',ref:'DYS',era:7,name:'Esfera de Dyson',pl:'esferas de Dyson',desc:'Envolve uma estrela inteira para alimentar o processamento.',cost:1.4e13,bps:6.5e7},
-  {id:'mtr',ref:'MTR',era:7,name:'Cérebro matrioshka',pl:'cérebros matrioshka',desc:'Camadas e mais camadas de Dyson, uma dentro da outra.',cost:1.7e14,bps:4.3e8},
-  {id:'sim',ref:'SIM',era:7,name:'Universo simulado',pl:'universos simulados',desc:'Um universo inteiro rodando como processo em segundo plano.',cost:2.1e15,bps:2.9e9},
-  {id:'bh', ref:'BH', era:7,name:'Buraco negro de dados',pl:'buracos negros',desc:'O armazenamento mais denso que a física permite.',cost:2.6e16,bps:2.1e10},
-  {id:'mv', ref:'MV', era:7,name:'Multiverso',pl:'multiversos',desc:'Cada realidade alternativa vira um disco rígido.',cost:3.1e17,bps:1.5e11},
-  {id:'om', ref:'OM', era:7,name:'Ponto Ômega',pl:'pontos Ômega',desc:'O universo inteiro vira um único computador.',cost:4e18,bps:1.1e12},
-  {id:'bab',ref:'BAB',era:8,name:'Biblioteca de Babel',pl:'bibliotecas de Babel',desc:'Contém todos os livros possíveis, inclusive o manual deste jogo.',cost:6e19,bps:8e12},
-  {id:'tur',ref:'TM', era:8,name:'Máquina de Turing infinita',pl:'máquinas de Turing',desc:'Uma fita sem fim e todo o tempo do mundo.',cost:1e21,bps:6e13},
-  {id:'hol',ref:'HOL',era:8,name:'Horizonte holográfico',pl:'horizontes holográficos',desc:'Cada pedaço da superfície guarda um universo inteiro.',cost:1.8e22,bps:4.5e14},
-  {id:'bbr',ref:'BB', era:8,name:'Big Bang reciclado',pl:'Big Bangs reciclados',desc:'Comprime um universo velho e começa outro do zero.',cost:3.4e23,bps:3.4e15},
-  {id:'sig',ref:'SIG',era:8,name:'O Sinal',pl:'Sinais',desc:'Ninguém sabe de onde ele vem. Mas ele responde.',cost:7e24,bps:2.6e16},
-  {id:'bit',ref:'B0', era:8,name:'Bit primordial',pl:'bits primordiais',desc:'O primeiro bit de todos. Ou o último.',cost:1.5e26,bps:2e17},
+  {id:'sw', ref:'SW1',era:0,cost:15,bps:0.1},
+  {id:'pc', ref:'PNC',era:0,cost:40,bps:0.3},
+  {id:'rl', ref:'K1', era:0,cost:100,bps:1},
+  {id:'vt', ref:'V1', era:1,cost:1100,bps:8},
+  {id:'fm', ref:'TAP',era:1,cost:3600,bps:20},
+  {id:'tr', ref:'Q1', era:2,cost:12000,bps:47},
+  {id:'ic', ref:'U1', era:3,cost:130000,bps:260},
+  {id:'fd', ref:'FDD',era:3,cost:420000,bps:600},
+  {id:'cpu',ref:'CPU',era:3,cost:1.4e6,bps:1400},
+  {id:'hd', ref:'HDD',era:4,cost:5.3e6,bps:3300},
+  {id:'srv',ref:'SRV',era:4,cost:2e7,bps:7800},
+  {id:'cl', ref:'CLD',era:4,cost:8e7,bps:18500},
+  {id:'dc', ref:'DC', era:4,cost:3.3e8,bps:44000},
+  {id:'hpc',ref:'HPC',era:4,cost:5.1e9,bps:260000},
+  {id:'qpu',ref:'QPU',era:5,cost:7.5e10,bps:1.6e6},
+  {id:'dna',ref:'DNA',era:5,cost:2.7e11,bps:4e6},
+  {id:'nn', ref:'NN', era:6,cost:1e12,bps:1e7},
+  {id:'dys',ref:'DYS',era:7,cost:1.4e13,bps:6.5e7},
+  {id:'mtr',ref:'MTR',era:7,cost:1.7e14,bps:4.3e8},
+  {id:'sim',ref:'SIM',era:7,cost:2.1e15,bps:2.9e9},
+  {id:'bh', ref:'BH', era:7,cost:2.6e16,bps:2.1e10},
+  {id:'mv', ref:'MV', era:7,cost:3.1e17,bps:1.5e11},
+  {id:'om', ref:'OM', era:7,cost:4e18,bps:1.1e12},
+  {id:'bab',ref:'BAB',era:8,cost:6e19,bps:8e12},
+  {id:'tur',ref:'TM', era:8,cost:1e21,bps:6e13},
+  {id:'hol',ref:'HOL',era:8,cost:1.8e22,bps:4.5e14},
+  {id:'bbr',ref:'BB', era:8,cost:3.4e23,bps:3.4e15},
+  {id:'sig',ref:'SIG',era:8,cost:7e24,bps:2.6e16},
+  {id:'bit',ref:'B0', era:8,cost:1.5e26,bps:2e17},
 ];
-G.forEach(g=>{g.logCost=Math.log10(g.cost);g.bpsMb=big(g.bps);g.revealMb=big(g.cost*0.3)});
+G.forEach(g=>{Object.assign(g,T.gens[g.id]);g.logCost=Math.log10(g.cost);g.bpsMb=big(g.bps);g.revealMb=big(g.cost*0.3)});
 const GMAP=Object.fromEntries(G.map(g=>[g.id,g]));
 const OLD_ORDER=['sw','rl','vt','tr','ic','cpu','srv','dc','hpc','qpu','nn','dys','mtr','sim','bh','mv'];
 
 const TIER_T=[1,5,25,50,100,150,200,250,300,400,500];
 const TIER_C=[10,50,500,5e4,5e6,5e8,5e10,5e13,5e16,5e20,5e25];
-const TIER_N=['Solda caprichada','Overclock','Dissipador de cobre','Refrigeração líquida','Litografia de 3 nm','Supercondutores','Computação reversível','Fotônica','Spintrônica','Topologia exótica','Lógica impossível'];
 
 const U=[];
 G.forEach(g=>TIER_T.forEach((t,k)=>U.push({
   id:`g_${g.id}_${k}`,kind:'gen',
-  name:`${TIER_N[k]} (${g.ref})`,
-  desc:`Produção de ${g.pl} ×2.`,
+  name:T.upgName(T.tiers[k],g.ref),
+  desc:T.upgDesc(g.pl),
   cost:fromLog10(g.logCost+Math.log10(TIER_C[k])+3),
   unlock:()=>S.owned[g.id]>=t
 })));
 const CLICKS=[
-  ['Dedo treinado',100,{m:2},'Cliques valem o dobro.'],
-  ['Mouse óptico',600,{m:2},'Cliques valem o dobro.'],
-  ['Teclado mecânico',8000,{m:2},'Cliques valem o dobro.'],
-  ['Script de autoclique',8e4,{p:1},'Cada clique soma 1% da sua produção por segundo.'],
-  ['Clique em lote',8e6,{p:1},'Mais 1% da produção por clique.'],
-  ['Clique por fibra óptica',8e8,{p:1},'Mais 1% da produção por clique.'],
-  ['Clique quântico',8e10,{p:1},'Mais 1% da produção por clique.'],
-  ['Clique neural',8e12,{p:1},'Mais 1% da produção por clique.'],
-  ['Clique cósmico',8e14,{p:1},'Mais 1% da produção por clique.'],
-  ['Clique estelar',8e17,{p:2},'Mais 2% da produção por clique.'],
-  ['Clique do sinal',8e20,{p:3},'Mais 3% da produção por clique.'],
+  [100,{m:2}],
+  [600,{m:2}],
+  [8000,{m:2}],
+  [8e4,{p:1}],
+  [8e6,{p:1}],
+  [8e8,{p:1}],
+  [8e10,{p:1}],
+  [8e12,{p:1}],
+  [8e14,{p:1}],
+  [8e17,{p:2}],
+  [8e20,{p:3}]
 ];
-CLICKS.forEach(([name,cost,fx,desc],k)=>{const c=big(cost);U.push({
-  id:`c${k}`,kind:'click',fx,name,desc,cost:c,
+CLICKS.forEach(([cost,fx],k)=>{const c=big(cost);U.push({
+  id:`c${k}`,kind:'click',fx,name:T.clicks[k][0],desc:T.clicks[k][1],cost:c,
   unlock:()=>S.total*10n>=c*3n&&(k===0||upgSet.has(`c${k-1}`))
 })});
 const UMAP=Object.fromEntries(U.map(u=>[u.id,u]));
 
-const UNITS=['bits','bytes','KB','MB','GB','TB','PB','EB','ZB','YB','RB','QB','NbB','GlB','CsB','UvB','MvB','OmB','IfB','AbB'];
-const UNIT_NAMES=['Bit','Byte','Kilobyte','Megabyte','Gigabyte','Terabyte','Petabyte','Exabyte','Zettabyte','Yottabyte','Ronnabyte','Quettabyte','Nebulabyte','Galactobyte','Cosmobyte','Universobyte','Multiversobyte','Omegabyte','Infinitobyte','Absolutobyte'];
+const UNITS=[T.unitBits,T.unitBytes,'KB','MB','GB','TB','PB','EB','ZB','YB','RB','QB','NbB','GlB','CsB','UvB','MvB','OmB','IfB','AbB'];
+const UNIT_NAMES=T.unitNames;
 const UNIT_MB=UNITS.map((_,i)=>i===0?K:8n*K*(1024n**BigInt(i-1)));
 const LASTU=UNITS.length-1;
-const FACTS=['',
-  'Oito bits formam um byte: o suficiente para guardar uma letra.',
-  'Um kilobyte guarda mais ou menos meia página de texto.',
-  'Um megabyte comporta um livro curto em texto puro.',
-  'Um gigabyte dá para cerca de uma hora de vídeo em qualidade padrão.',
-  'Um terabyte guarda algo como 250 mil fotos de celular.',
-  'Um petabyte equivale a centenas de bilhões de páginas de texto.',
-  'Um exabyte é um milhão de terabytes.',
-  'O tráfego anual da internet inteira é medido em zettabytes.',
-  'Um yottabyte é mais do que todos os data centers do mundo juntos guardam.',
-  'Ronnabyte: um prefixo oficializado só em 2022.',
-  'Quettabyte: o maior prefixo do Sistema Internacional. Daqui pra frente, os nomes são inventados.',
-  'Nebulabyte: nome inventado. A escala oficial acabou e o mapa agora é seu.',
-  'Galactobyte: um número de bits com 38 dígitos.',
-  'Cosmobyte: 41 dígitos. Contar até aqui levaria muito mais que a idade do universo.',
-  'Universobyte: 44 dígitos de bits.',
-  'Multiversobyte: 47 dígitos. A essa altura, só BigInt dá conta.',
-  'Omegabyte: 50 dígitos.',
-  'Infinitobyte: não é infinito, mas tem 53 dígitos.',
-  'Absolutobyte: a última unidade com nome. Depois daqui, só notação científica.',
-];
+const FACTS=T.facts;
 
 /* ---------- Estado ---------- */
 const KEY='bit-a-bit-save-v3',V2='bit-a-bit-save-v2',V1='bit-a-bit-save-v1';
@@ -669,14 +687,14 @@ function unitIndex(mb){
 }
 function numStr(v){const d=v<10?2:(v<100?1:0),q=Math.pow(10,d);return nf(Math.floor(v*q+1e-9)/q,d)}
 function parts(mb){
-  if(mb<UNIT_MB[1]){const v=Math.floor(Number(mb)/100)/10;return [nf(v,v%1===0?0:1),'bits']}
+  if(mb<UNIT_MB[1]){const v=Math.floor(Number(mb)/100)/10;return [nf(v,v%1===0?0:1),UNITS[0]]}
   const i=unitIndex(mb);
   if(i===LASTU&&mb>=UNIT_MB[i]*1024n){const L=log10Big(mb)-log10Big(UNIT_MB[i]);const e=Math.floor(L);return [nf(Math.pow(10,L-e),2)+'e'+e,UNITS[i]]}
   return [numStr(Number(mb*1000n/UNIT_MB[i])/1000),UNITS[i]];
 }
 const fmt=b=>parts(b).join(' ');
-function fmtTime(s){s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h} h ${m} min`:(m?`${m} min ${x} s`:`${x} s`)}
-function fmtEta(s){if(!isFinite(s)||s>3.15e7)return 'muito tempo';if(s<1)return 'menos de 1 s';if(s<60)return Math.ceil(s)+' s';if(s<3600)return Math.ceil(s/60)+' min';if(s<86400)return nf(s/3600,1)+' h';return Math.ceil(s/86400)+' dias'}
+function fmtTime(s){s=Math.floor(s);return T.time(Math.floor(s/3600),Math.floor(s%3600/60),s%60)}
+function fmtEta(s){const E=T.eta;if(!isFinite(s)||s>3.15e7)return E.long;if(s<1)return E.lt1;if(s<60)return E.s(Math.ceil(s));if(s<3600)return E.min(Math.ceil(s/60));if(s<86400)return E.h(nf(s/3600,1));return E.d(Math.ceil(s/86400))}
 
 /* ---------- Cálculos ---------- */
 function bm(b){return Date.now()<b.until?b.m:1n}
@@ -691,7 +709,7 @@ function clickBuff(){return bm(buffs.click)*bm(buffs.over)}
 function totalBps(){return baseBps()*prodBuff()}
 function clickVal(){
   let m=1n,p=0n;
-  CLICKS.forEach((c,k)=>{if(upgSet.has(`c${k}`)){if(c[2].m)m*=BigInt(c[2].m);if(c[2].p)p+=BigInt(c[2].p)}});
+  CLICKS.forEach((c,k)=>{if(upgSet.has(`c${k}`)){if(c[1].m)m*=BigInt(c[1].m);if(c[1].p)p+=BigInt(c[1].p)}});
   const [n,d]=perm();
   if(R('c1'))m*=2n;if(R('z'))m*=2n;if(R('c4'))p+=3n;
   return (m*K*n/d+totalBps()*p/100n)*clickBuff();
@@ -707,83 +725,69 @@ function rewardTime(secs){let g=baseBps()*BigInt(secs);const min=big(50*(1+S.max
 /* ---------- Conquistas ---------- */
 const A=[];
 let AB=0n;
-const add=(id,name,desc,test,secret)=>A.push({id,name,desc,test,secret:!!secret});
-add('clk1','Primeiro bit','Clique no chip pela primeira vez.',()=>S.clicks>=1);
-add('clk2','Dedo calejado','Clique 100 vezes.',()=>S.clicks>=100);
-add('clk3','Tendinite à vista','Clique 1.000 vezes.',()=>S.clicks>=1000);
-add('clk4','Clique sem fim','Clique 10.000 vezes.',()=>S.clicks>=10000);
-['Primeira letra','Meia página','Um livro inteiro','Uma hora de vídeo','Álbum sem fim','Biblioteca nacional','Mil petabytes','A internet de um ano','Além dos data centers','Prefixo novinho','Fim da escala oficial','Fora do mapa','Via Láctea em bits','Poeira cósmica','Universo em disco','Realidades paralelas','Letra final','Quase infinito','Absoluto']
-  .forEach((n,k)=>add('u'+(k+1),n,`Tenha 1 ${UNIT_NAMES[k+1].toLowerCase()} de uma vez.`,()=>S.maxUnit>=k+1));
-[[8,'Um byte por segundo'],[8*1024,'Conexão discada'],[8*1024**2,'Banda larga'],[8*1024**3,'Fibra óptica'],[8*1024**4,'Backbone'],[8*1024**5,'Tráfego planetário'],[8*1024**6,'A internet inteira por segundo'],[8*1024**8,'Banda cósmica'],[8*1024**10,'Fluxo do sinal']]
-  .forEach(([v,n],k)=>{const b=big(v);add('bps'+k,n,`Produza ${fmt(b)} por segundo.`,()=>AB>=b)});
-[[10,'Bancada montada'],[100,'Linha de produção'],[500,'Fábrica de chips'],[1000,'Indústria pesada'],[5000,'Planeta-fábrica']]
-  .forEach(([v,n],k)=>add('own'+k,n,`Tenha ${v.toLocaleString('pt-BR')} componentes ao mesmo tempo.`,()=>ownedTotal()>=v));
-[[50,'Especialista'],[100,'Monopólio'],[200,'Obsessão'],[500,'Fixação total']]
-  .forEach(([v,n],k)=>add('one'+k,n,`Tenha ${v} unidades de um mesmo componente.`,()=>maxOwnedOne()>=v));
-add('all','Coleção completa','Tenha pelo menos um de cada componente.',()=>G.every(g=>S.owned[g.id]>0));
-add('floppy','Nostalgia','Compre um disquete.',()=>S.owned.fd>0);
-ERAS.slice(1).forEach((e,k)=>add('era'+(k+1),e.name,`Alcance a ${e.name.toLowerCase()}.`,()=>S.maxEra>=k+1));
-[[1,'Primeira melhoria'],[10,'Engenheiro'],[50,'Pesquisa e desenvolvimento'],[100,'Tudo otimizado'],[200,'Perfeccionista']]
-  .forEach(([v,n],k)=>add('upg'+k,n,`Compre ${v} ${v===1?'melhoria':'melhorias'}.`,()=>S.upg.length>=v));
-[[1,'Pacote recebido'],[10,'Caçador de pacotes'],[50,'Sniffer de rede']]
-  .forEach(([v,n],k)=>add('pk'+k,n,`Capture ${v} ${v===1?'pacote':'pacotes'} de dados.`,()=>S.packets>=v));
-add('legend','Lenda urbana','Capture um pacote lendário.',()=>S.legends>=1);
-add('combo','Combo perfeito','Tenha a rajada de dados e um bônus de clique ativos ao mesmo tempo.',()=>bm(buffs.prod)>1n&&clickBuff()>1n);
-[[1,'Contratado'],[10,'Freelancer de dados'],[50,'Empresa de dados']]
-  .forEach(([v,n],k)=>add('mis'+k,n,`Conclua ${v} ${v===1?'contrato':'contratos'}.`,()=>S.missionsDone>=v));
-[[1,'Overclock manual'],[25,'Superaquecido']]
-  .forEach(([v,n],k)=>add('oc'+k,n,`Ative o overclock clicando rápido ${v===1?'uma vez':v+' vezes'}.`,()=>S.overclocks>=v));
-add('loreAll','Transmissão completa','Receba todas as mensagens do sinal.',()=>LORE.filter(l=>l.u!==undefined).every(l=>loreSet.has(l.id)));
-add('cmp1','Primeira compressão','Comprima seus dados uma vez.',()=>S.compressions>=1);
-add('cmp2','Zip dentro de zip','Tenha 10 algoritmos.',()=>S.algos>=10);
-add('cmp3','Entropia mínima','Tenha 100 algoritmos.',()=>S.algos>=100);
-add('cmp4','Compressão absurda','Tenha 1 milhão de algoritmos.',()=>S.algos>=1e6);
-add('t1','Uma hora de uptime','Jogue por 1 hora.',()=>S.played>=3600);
-add('t2','Servidor dedicado','Jogue por 10 horas.',()=>S.played>=36000);
-add('s42','A resposta','Os LEDs também aceitam cliques. Que número responde a tudo?',()=>!!S.secret.s42,true);
-add('sudo','Superusuário','Algumas palavras, digitadas no teclado, dão poderes de administrador.',()=>!!S.secret.sudo,true);
-add('konami','Código antigo','Cima, cima, baixo, baixo… o resto você sabe.',()=>!!S.secret.konami,true);
-add('logo','Um byte de cliques','O título do jogo parece só um título.',()=>!!S.secret.logo,true);
-add('byte8','Um byte de interruptores','Oito chaves, nem mais, nem menos.',()=>!!S.secret.byte8,true);
-add('night','Turno da madrugada','Jogue enquanto todo mundo dorme.',()=>!!S.secret.night,true);
-add('idle','Piloto automático','Às vezes o melhor clique é nenhum clique.',()=>!!S.secret.idle,true);
-add('reflex','Reflexo de fibra','Pegue um pacote assim que ele aparecer.',()=>!!S.secret.reflex,true);
-add('vir1','Antivírus humano','Elimine um vírus clicando nos bugs.',()=>S.virusCleaned>=1);
-add('vir2','Caça-bugs','Elimine 10 vírus.',()=>S.virusCleaned>=10);
-add('mg1','Técnico de plantão','Vença um minijogo de manutenção.',()=>S.minigames>=1);
-add('mg2','Engenheiro de campo','Vença 10 minijogos.',()=>S.minigames>=10);
-add('storm','Céu elétrico','Passe por uma tempestade solar.',()=>S.storms>=1);
-add('res1','Primeira pesquisa','Conclua uma pesquisa.',()=>S.research.length>=1);
-add('res2','Singularidade','Conclua a pesquisa final da árvore.',()=>researchSet.has('z'));
-add('rank','Na tabela','Envie seu recorde para o ranking.',()=>!!S.ranked);
+const add=(id,test,secret,name,desc)=>A.push({id,name:name||T.ach[id][0],desc:desc||T.ach[id][1],test,secret:!!secret});
+add('clk1',()=>S.clicks>=1);
+add('clk2',()=>S.clicks>=100);
+add('clk3',()=>S.clicks>=1000);
+add('clk4',()=>S.clicks>=10000);
+T.achUnit.forEach((n,k)=>add('u'+(k+1),()=>S.maxUnit>=k+1,false,n,T.achUnitDesc(UNIT_NAMES[k+1])));
+[8,8*1024,8*1024**2,8*1024**3,8*1024**4,8*1024**5,8*1024**6,8*1024**8,8*1024**10]
+  .forEach((v,k)=>{const b=big(v);add('bps'+k,()=>AB>=b,false,T.achBps[k],T.achBpsDesc(fmt(b)))});
+[10,100,500,1000,5000].forEach((v,k)=>add('own'+k,()=>ownedTotal()>=v,false,T.achOwn[k],T.achOwnDesc(v.toLocaleString(LOC))));
+[50,100,200,500].forEach((v,k)=>add('one'+k,()=>maxOwnedOne()>=v,false,T.achOne[k],T.achOneDesc(v)));
+add('all',()=>G.every(g=>S.owned[g.id]>0));
+add('floppy',()=>S.owned.fd>0);
+ERAS.slice(1).forEach((e,k)=>add('era'+(k+1),()=>S.maxEra>=k+1,false,e.name,T.achEraDesc(e.name)));
+[1,10,50,100,200].forEach((v,k)=>add('upg'+k,()=>S.upg.length>=v,false,T.achUpg[k],T.achUpgDesc(v)));
+[1,10,50].forEach((v,k)=>add('pk'+k,()=>S.packets>=v,false,T.achPk[k],T.achPkDesc(v)));
+add('legend',()=>S.legends>=1);
+add('combo',()=>bm(buffs.prod)>1n&&clickBuff()>1n);
+[1,10,50].forEach((v,k)=>add('mis'+k,()=>S.missionsDone>=v,false,T.achMis[k],T.achMisDesc(v)));
+[1,25].forEach((v,k)=>add('oc'+k,()=>S.overclocks>=v,false,T.achOc[k],T.achOcDesc(v)));
+add('loreAll',()=>LORE.filter(l=>l.u!==undefined).every(l=>loreSet.has(l.id)));
+add('cmp1',()=>S.compressions>=1);
+add('cmp2',()=>S.algos>=10);
+add('cmp3',()=>S.algos>=100);
+add('cmp4',()=>S.algos>=1e6);
+add('t1',()=>S.played>=3600);
+add('t2',()=>S.played>=36000);
+['s42','sudo','konami','logo','byte8','night','idle','reflex'].forEach(id=>add(id,()=>!!S.secret[id],true));
+add('vir1',()=>S.virusCleaned>=1);
+add('vir2',()=>S.virusCleaned>=10);
+add('mg1',()=>S.minigames>=1);
+add('mg2',()=>S.minigames>=10);
+add('storm',()=>S.storms>=1);
+add('res1',()=>S.research.length>=1);
+add('res2',()=>researchSet.has('z'));
+add('rank',()=>!!S.ranked);
 const AMAP=Object.fromEntries(A.map(a=>[a.id,a]));
 
 /* ---------- Transmissão (história) ---------- */
 const LORE=[
-  {id:'b0',k:1,t:'sistema iniciado. aguardando o primeiro bit.'},
-  {id:'u1',u:1,t:'sinal fraco detectado no barramento. origem desconhecida.'},
-  {id:'u2',u:2,t:'o sinal se repete a cada 1024 ciclos. parece uma contagem.'},
-  {id:'u3',u:3,t:'trecho decodificado: “vocês armazenam. nós lembramos.”'},
-  {id:'u4',u:4,t:'o sinal muda quando você clica. ele sabe que você está aí.'},
-  {id:'u5',u:5,t:'fragmento: “os LEDs não só mostram. eles também escutam.”'},
-  {id:'u6',u:6,t:'nova mensagem: “quarenta e dois, em binário, abre uma porta.”'},
-  {id:'u7',u:7,t:'origem triangulada: além do quettabyte. componentes desconhecidos surgiram na loja.'},
-  {id:'u8',u:8,t:'“cada compressão nos deixa mais perto. apague para lembrar.”'},
-  {id:'u9',u:9,t:'o sinal agora pulsa no ritmo dos seus cliques.'},
-  {id:'u10',u:10,t:'“o último prefixo não é o fim. é uma porta.”'},
-  {id:'u11',u:11,t:'PORTA ABERTA. a escala oficial acabou. as próximas unidades não têm nome oficial.'},
-  {id:'u12',u:12,t:'“você está quase nos ouvindo.”'},
-  {id:'u13',u:13,t:'a mensagem original foi encontrada. ela tem exatamente 1 bit.'},
-  {id:'u14',u:14,t:'“o bit é a pergunta. todos os outros são a resposta.”'},
-  {id:'u15',u:15,t:'“nós também começamos clicando.”'},
-  {id:'u16',u:16,t:'origem confirmada: este chip. data de envio: o futuro.'},
-  {id:'u17',u:17,t:'“quando chegar ao fim, comprima tudo. e comece de novo.”'},
-  {id:'u18',u:18,t:'o sinal era você. o tempo todo.'},
-  {id:'u19',u:19,t:'FIM DA TRANSMISSÃO. obrigado por ouvir. (será mesmo o fim?)'},
-  {id:'c1',c:1,t:'a compressão deixou um rastro. alguém do outro lado percebeu.'},
-  {id:'x42',s:'s42',t:'acesso parcial concedido. tente falar como administrador.'},
-  {id:'xsudo',s:'sudo',t:'privilégios elevados. o sinal agradece e deixa um presente.'},
-  {id:'xkon',s:'konami',t:'código antigo reconhecido. alguém aqui jogava videogame.'},
+  {id:'b0',k:1},
+  {id:'u1',u:1},
+  {id:'u2',u:2},
+  {id:'u3',u:3},
+  {id:'u4',u:4},
+  {id:'u5',u:5},
+  {id:'u6',u:6},
+  {id:'u7',u:7},
+  {id:'u8',u:8},
+  {id:'u9',u:9},
+  {id:'u10',u:10},
+  {id:'u11',u:11},
+  {id:'u12',u:12},
+  {id:'u13',u:13},
+  {id:'u14',u:14},
+  {id:'u15',u:15},
+  {id:'u16',u:16},
+  {id:'u17',u:17},
+  {id:'u18',u:18},
+  {id:'u19',u:19},
+  {id:'c1',c:1},
+  {id:'x42',s:'s42'},
+  {id:'xsudo',s:'sudo'},
+  {id:'xkon',s:'konami'},
 ];
 const LMAP=Object.fromEntries(LORE.map(l=>[l.id,l]));
 const LORE_MAIN=LORE.filter(l=>l.u!==undefined).length;
@@ -796,17 +800,17 @@ function newMission(){
   let m;
   if(roll<0.38){
     const n=Math.min(60,Math.max(5,Math.round(S.owned[g.id]*0.15+5+R()*10)));
-    m={t:'buy',g:g.id,n,start:S.owned[g.id],text:`Compre ${n} ${g.pl}`};
+    m={t:'buy',g:g.id,n,start:S.owned[g.id]};
   }else if(roll<0.6){
     const n=10*Math.round((40+R()*160)/10);
-    m={t:'click',n,start:S.clicks,text:`Clique ${n} vezes no chip`};
+    m={t:'click',n,start:S.clicks};
   }else if(roll<0.86){
     let tgt=baseBps()*BigInt(Math.round(90+R()*180));const minT=big(200);if(tgt<minT)tgt=minT;
-    m={t:'earn',n:tgt,start:S.total,text:`Gere ${fmt(tgt)}`};
+    m={t:'earn',n:tgt,start:S.total};
   }else if(roll<0.94){
-    m={t:'packet',n:1,start:S.packets,text:'Capture um pacote de dados'};
+    m={t:'packet',n:1,start:S.packets};
   }else{
-    m={t:'upg',n:2,start:S.upg.length,text:'Compre 2 melhorias'};
+    m={t:'upg',n:2,start:S.upg.length};
   }
   m.reward=R()<0.65?{k:'time',secs:30*Math.round((180+R()*420)/30)}:{k:'buff',m:3,secs:60};
   m.id=Date.now().toString(36)+Math.floor(R()*1e6).toString(36);
@@ -817,18 +821,19 @@ function misState(m){
   if(m.t==='earn'){
     let cur=S.total-m.start;if(cur<0n)cur=0n;
     const r=m.n>0n?Number((cur>m.n?m.n:cur)*1000n/m.n)/1000:1;
-    return {r,label:`${fmt(cur>m.n?m.n:cur)} de ${fmt(m.n)}`};
+    return {r,label:T.ofN(fmt(cur>m.n?m.n:cur),fmt(m.n))};
   }
   const cur=Math.max(0,({buy:()=>S.owned[m.g]||0,click:()=>S.clicks,packet:()=>S.packets,upg:()=>S.upg.length})[m.t]()-m.start);
-  return {r:Math.min(1,cur/m.n),label:`${Math.min(cur,m.n)} de ${m.n}`};
+  return {r:Math.min(1,cur/m.n),label:T.ofN(Math.min(cur,m.n),m.n)};
 }
 function uniqueMission(others){for(let i=0;i<8;i++){const m=newMission();if(!others.some(o=>o.t===m.t&&(m.t!=='buy'||o.g===m.g)))return m}return newMission()}
-const rewardText=r=>r.k==='time'?`Recompensa: ${r.secs/60} min de produção`:`Recompensa: produção ×${r.m} por ${r.secs/60} min`;
+const rewardText=r=>r.k==='time'?T.rewardTime(nf(r.secs/60,r.secs%60?1:0)):T.rewardBuff(r.m,nf(r.secs/60,r.secs%60?1:0));
+function misText(m){switch(m.t){case 'buy':return T.misBuy(m.n,GMAP[m.g]?GMAP[m.g].pl:'');case 'click':return T.misClick(m.n);case 'earn':return T.misEarn(fmt(m.n));case 'packet':return T.misPacket;default:return T.misUpg}}
 function claimMission(id){
   const i=S.missions.findIndex(m=>m.id===id);if(i<0)return;
   const m=S.missions[i];if(misState(m).r<1)return;
-  if(m.reward.k==='time'){const g=rewardTime(m.reward.secs*(R('n3')?2:1));toast('Contrato concluído',`Você recebeu ${fmt(g)}.`)}
-  else{buffs.mission={m:BigInt(m.reward.m),until:Date.now()+m.reward.secs*1000*(R('n3')?2:1),label:`Contrato: produção ×${m.reward.m}`};toast('Contrato concluído',`Produção ×${m.reward.m} por ${m.reward.secs/60} min.`)}
+  if(m.reward.k==='time'){const g=rewardTime(m.reward.secs*(R('n3')?2:1));toast(T.misDoneT,T.gotBits(fmt(g)))}
+  else{buffs.mission={m:BigInt(m.reward.m),until:Date.now()+m.reward.secs*1000*(R('n3')?2:1),label:T.buffMission(m.reward.m)};toast(T.misDoneT,T.misBuffBody(m.reward.m,nf(m.reward.secs/60,0)))}
   S.missionsDone++;
   S.missions.splice(i,1);S.missions.splice(i,0,uniqueMission(S.missions));
   SFX.claim();Circuit.ring('#ffd166');Circuit.burst(12);
@@ -869,9 +874,9 @@ chip.addEventListener('click',e=>{
     if(heat>=1){
       heat=0;S.overclocks++;
       const om=R('c2')?7:5,os=R('c2')?15:8;
-      buffs.over={m:BigInt(om),until:Date.now()+os*1000,label:`Overclock: cliques ×${om}`};
+      buffs.over={m:BigInt(om),until:Date.now()+os*1000,label:T.buffOver(om)};
       SFX.over();Circuit.ring('#ff5a47');
-      toast('Overclock!',`Você clicou tão rápido que o chip superaqueceu. Cliques ×${om} por ${os} segundos.`);
+      toast(T.overT,T.overBody(om,os));
     }
   }
   SFX.click(heat);
@@ -879,7 +884,7 @@ chip.addEventListener('click',e=>{
   let x=e.clientX,y=e.clientY;
   if(!e.detail){const r=chip.getBoundingClientRect();x=r.left+r.width/2;y=r.top+r.height/2}
   if(crit)tone(1568,0.12,'square',0.04);
-  if(!reduce.matches){floatText((crit?'CRÍTICO +':'+')+fmt(v),x,y);flyBit(x,y)}
+  if(!reduce.matches){floatText((crit?T.crit:'+')+fmt(v),x,y);flyBit(x,y)}
   render();
 });
 function floatText(t,x,y){
@@ -930,7 +935,7 @@ function syncQty(){document.querySelectorAll('.qty button').forEach(o=>o.setAttr
 document.querySelectorAll('.qty button').forEach(b=>b.addEventListener('click',()=>{S.qty=+b.dataset.q;syncQty();render()}));
 
 const soundBtn=$('soundBtn');
-function syncSound(){soundBtn.setAttribute('aria-pressed',S.sound?'true':'false');soundBtn.textContent=S.sound?'Som ligado':'Som desligado'}
+function syncSound(){soundBtn.setAttribute('aria-pressed',S.sound?'true':'false');soundBtn.textContent=S.sound?T.soundOn:T.soundOff}
 soundBtn.addEventListener('click',()=>{S.sound=!S.sound;syncSound();if(S.sound)SFX.buy();save()});
 
 function toast(title,body,cls){
@@ -954,7 +959,8 @@ function armed(btn,label,confirmLabel,fn){
 /* Compressão (prestígio) */
 const LOG_GB_MB=Math.log10(8*Math.pow(1024,3)*1000);
 function algosPossible(){const L=log10Big(S.allTime)-LOG_GB_MB;if(!(L>=0))return 0;return Math.floor(Math.pow(10,L/3)+1e-9)}
-armed($('compBtn'),'Comprimir','Confirmar compressão',()=>{
+$('compBtn').textContent=T.compBtn;
+armed($('compBtn'),T.compBtn,T.compConfirm,()=>{
   const gain=algosPossible()-S.algos;
   if(gain<1)return;
   const keep={allTime:S.allTime,clicks:S.clicks,algos:S.algos+gain,maxUnit:S.maxUnit,played:S.played,qty:S.qty,ach:S.ach,packets:S.packets,legends:S.legends,
@@ -963,17 +969,18 @@ armed($('compBtn'),'Comprimir','Confirmar compressão',()=>{
   clearVirus();resetBuffs();
   S=Object.assign(fresh(),keep);upgSet=new Set();upgKey='';misKey='';resetBench();
   SFX.comp();Circuit.ring('#c79bff');
-  toast('Dados comprimidos',`Você ganhou ${fmtCount(gain)} ${gain===1?'algoritmo':'algoritmos'}. Multiplicador permanente: ×${multStr()}. +${1+Math.floor(Math.log10(gain))} ${Math.floor(Math.log10(gain))===0?'ponto':'pontos'} de pesquisa.`);
+  toast(T.compT,T.compBody(T.algos(gain,fmtCount(gain)),multStr(),1+Math.floor(Math.log10(gain))));
   save();render();
 });
 function multStr(){const m=1+0.1*S.algos;return m<1e6?nf(m,m<100?1:0):fmtCount(m)}
-armed($('resetBtn'),'Apagar progresso','Clique de novo para apagar tudo',()=>{
+$('resetBtn').textContent=T.resetBtn;
+armed($('resetBtn'),T.resetBtn,T.resetConfirm,()=>{
   try{[KEY,V2,V1].forEach(k=>localStorage.removeItem(k))}catch(e){}
   const snd=S.sound;
   const mus=S.music;S=fresh();S.sound=snd;S.music=mus;S.tut=3;upgSet=new Set();achSet=new Set();loreSet=new Set();researchSet=new Set();clearVirus();resetBuffs();upgKey='';misKey='';
   $('term').innerHTML='';$('termBoard').hidden=true;
   resetBench();syncQty();syncAch();
-  toast('Progresso apagado','Tudo de volta ao primeiro bit.');
+  toast(T.resetT,T.resetBody);
   render();
 });
 
@@ -982,7 +989,7 @@ function unlockSecret(k,secs){
   if(S.secret[k])return;
   S.secret[k]=true;
   SFX.secret();
-  if(secs){const g=rewardTime(secs);toast('Segredo descoberto!',`Recompensa: ${fmt(g)}.`,'sec-t')}
+  if(secs){const g=rewardTime(secs);toast(T.secretT,T.secretBody(fmt(g)),'sec-t')}
   Circuit.ring('#ff7ad9');
 }
 const KON=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
@@ -1009,7 +1016,7 @@ function spawnPacket(){
   packetEl=document.createElement('button');
   packetEl.className='packet'+(packetLegend?' legend':'');
   packetEl.textContent=packetLegend?'LGD':'PKT';
-  packetEl.setAttribute('aria-label',packetLegend?'Pacote lendário: clique para pegar':'Pacote de dados bônus: clique para pegar');
+  packetEl.setAttribute('aria-label',packetLegend?T.pktLegendAria:T.pktAria);
   packetEl.style.left=rand(6,80)+'vw';packetEl.style.top=rand(15,75)+'vh';
   packetEl.addEventListener('click',catchPacket);
   document.body.appendChild(packetEl);
@@ -1023,14 +1030,14 @@ function catchPacket(){
   if(now-packetBorn<1000)unlockSecret('reflex');
   if(packetLegend){
     S.legends++;
-    buffs.prod={m:777n,until:now+13000,label:'Pacote lendário: produção ×777'};
-    toast('Pacote lendário!','Produção ×777 por 13 segundos. Aproveite!','sec-t');
+    buffs.prod={m:777n,until:now+13000,label:T.buffLegend};
+    toast(T.legendT,T.legendBody,'sec-t');
     SFX.legend();Circuit.ring('#ff7ad9');Circuit.burst(30);
   }else{
     const r=Math.random();
-    if(r<.5){buffs.prod={m:7n,until:now+30000,label:'Rajada de dados: produção ×7'};toast('Rajada de dados!','Sua produção está ×7 por 30 segundos.')}
-    else if(r<.85){let g=S.bits*15n/100n;const cap=baseBps()*900n;if(g>cap)g=cap;g+=13n*K;addBits(g);toast('Pacote comprimido!',`Você recebeu ${fmt(g)}.`)}
-    else{buffs.click={m:77n,until:now+10000,label:'Clique turbo: cliques ×77'};toast('Clique turbo!','Seus cliques valem ×77 por 10 segundos.')}
+    if(r<.5){buffs.prod={m:7n,until:now+30000,label:T.buffBurst};toast(T.burstT,T.burstBody)}
+    else if(r<.85){let g=S.bits*15n/100n;const cap=baseBps()*900n;if(g>cap)g=cap;g+=13n*K;addBits(g);toast(T.zipT,T.gotBits(fmt(g)))}
+    else{buffs.click={m:77n,until:now+10000,label:T.buffTurbo};toast(T.turboT,T.turboBody)}
     SFX.pkt();Circuit.ring('#ffd166');
   }
   removePacket();render();
@@ -1108,7 +1115,7 @@ A.forEach(a=>{
 });
 function syncAch(){
   A.forEach(a=>{const got=achSet.has(a.id);achEls[a.id].classList.toggle('got',got);achEls[a.id].querySelector('.an').textContent=a.secret&&!got?'???':a.name});
-  setText($('achCount'),`${achSet.size} de ${A.length}`);
+  setText($('achCount'),T.ofN(achSet.size,A.length));
 }
 function checkAch(){
   AB=baseBps();
@@ -1116,7 +1123,7 @@ function checkAch(){
   for(const a of A){
     if(!achSet.has(a.id)&&a.test()){
       achSet.add(a.id);S.ach.push(a.id);got=true;
-      toast(a.secret?`Conquista secreta: ${a.name}`:`Conquista: ${a.name}`,`${a.secret?'':a.desc+' '}Produção +1%.`,a.secret?'sec-t':'ach-t');
+      toast(a.secret?T.achSecretT(a.name):T.achT(a.name),(a.secret?'':a.desc+T.sep)+T.achBonus,a.secret?'sec-t':'ach-t');
     }
   }
   if(got){SFX.ach();syncAch()}
@@ -1142,10 +1149,10 @@ function addLoreLine(id,animate){
   const p=document.createElement('span');p.className='tp';p.textContent='>';
   const t=document.createElement('span');
   div.append(p,' ',t);termEl.appendChild(div);
-  if(animate)decode(t,L.t);else t.textContent=L.t;
+  const txt=T.lore[id];if(animate)decode(t,txt);else t.textContent=txt;
   termEl.scrollTop=termEl.scrollHeight;
   $('termBoard').hidden=false;
-  setText($('loreCount'),`${LORE.filter(l=>l.u!==undefined&&loreSet.has(l.id)).length} de ${LORE_MAIN}`);
+  setText($('loreCount'),T.ofN(LORE.filter(l=>l.u!==undefined&&loreSet.has(l.id)).length,LORE_MAIN));
 }
 function checkLore(){
   for(const L of LORE){
@@ -1156,7 +1163,7 @@ function checkLore(){
     addLoreLine(L.id,true);
     $('termBoard').classList.add('unread');
     SFX.lore();
-    if(L.id!=='b0')toast('Nova transmissão recebida','Um pedaço do sinal foi decodificado. Veja a seção Transmissão.');
+    if(L.id!=='b0')toast(T.loreT,T.loreBody);
   }
 }
 if('IntersectionObserver' in window){
@@ -1201,9 +1208,9 @@ function renderMissions(){
     S.missions.forEach(m=>{
       const d=document.createElement('div');
       d.className='mis'+(old.size>1&&!old.has(m.id)?' enter':'');d.dataset.id=m.id;
-      d.innerHTML='<span class="mis-t"></span><span class="mis-p"></span><div class="bar"><div class="fill"></div></div><div class="mis-bot"><span class="mis-r"></span><button class="btn mis-b">Resgatar</button></div>';
-      d.querySelector('.mis-t').textContent=m.text;
-      d.querySelector('.mis-r').textContent=rewardText(m.reward);
+      d.innerHTML='<span class="mis-t"></span><span class="mis-p"></span><div class="bar"><div class="fill"></div></div><div class="mis-bot"><span class="mis-r"></span><button class="btn mis-b"></button></div>';
+      d.querySelector('.mis-t').textContent=misText(m);
+      d.querySelector('.mis-r').textContent=rewardText(m.reward);d.querySelector('.mis-b').textContent=T.claim;
       d.querySelector('.mis-b').addEventListener('click',()=>claimMission(m.id));
       box.appendChild(d);
     });
@@ -1217,7 +1224,7 @@ function renderMissions(){
     d.classList.toggle('done',done);
     if(done&&!m.ready){m.ready=true;SFX.ready()}
   });
-  setText($('mDone'),`${S.missionsDone} ${S.missionsDone===1?'concluído':'concluídos'}`);
+  setText($('mDone'),T.mDone(S.missionsDone.toLocaleString(LOC)));
 }
 
 function currentEra(){let e=0;for(const g of G)if(S.owned[g.id]>0)e=Math.max(e,g.era);return e}
@@ -1235,17 +1242,17 @@ function bootChip(label){
 
 function renderGoal(bps){
   const sl=shownLastIndex(),c=[];
-  G.forEach((g,k)=>{if(k<=sl)c.push({n:g.name,v:genCost(g,1)});else if(k===sl+1)c.push({n:'revelar um componente novo',v:g.revealMb})});
-  availUpg.forEach(u=>c.push({n:u.name,v:u.cost}));
-  const i=unitIndex(S.bits);if(i<LASTU)c.push({n:`chegar ao ${UNIT_NAMES[i+1]}`,v:UNIT_MB[i+1]});
+  G.forEach((g,k)=>{if(k<=sl)c.push({n:g.name,v:genCost(g,1),buy:true});else if(k===sl+1)c.push({n:T.goalReveal,v:g.revealMb})});
+  availUpg.forEach(u=>c.push({n:u.name,v:u.cost,buy:true}));
+  const i=unitIndex(S.bits);if(i<LASTU)c.push({n:T.goalUnit(UNIT_NAMES[i+1]),v:UNIT_MB[i+1]});
   let best=null;for(const x of c)if(x.v>S.bits&&(!best||x.v<best.v))best=x;
   const el=$('goal');
-  const affordable=c.some(x=>x.v<=S.bits&&!x.n.startsWith('chegar')&&!x.n.startsWith('revelar'));
+  const affordable=c.some(x=>x.buy&&x.v<=S.bits);
   let html;
-  if(!best)html='Você pode comprar tudo que está à vista.';
+  if(!best)html=T.goalAll;
   else{
-    const eta=bps>0n?fmtEta(Number((best.v-S.bits)*10n/bps)/10):'continue clicando';
-    html=`Próximo: <b></b> em ${eta}${affordable?'. Já dá para comprar algo agora.':'.'}`;
+    const eta=bps>0n?fmtEta(Number((best.v-S.bits)*10n/bps)/10):T.keepClicking;
+    html=T.goalNext(eta,affordable);
   }
   if(el.dataset.h!==html+(best?best.n:'')){el.dataset.h=html+(best?best.n:'');el.innerHTML=html;const b=el.querySelector('b');if(b)b.textContent=best.n}
 }
@@ -1260,13 +1267,13 @@ function render(){
     lastUnitText=u;
   }
   const bps=totalBps();
-  setText($('rate'),`${fmt(bps)} por segundo`);
-  setText($('perclick'),`+${fmt(clickVal())} por clique`);
+  setText($('rate'),T.rate(fmt(bps)));
+  setText($('perclick'),T.perClick(fmt(clickVal())));
   renderLeds();
 
   const now=Date.now();
   const act=[buffs.prod,buffs.click,buffs.mission,buffs.over,buffs.event].filter(b=>now<b.until);
-  setText($('buff'),act.length?act.map(b=>`${b.label} (${Math.ceil((b.until-now)/1000)} s)`).join(' + '):'');
+  setText($('buff'),act.length?act.map(b=>T.buffLeft(b.label,Math.ceil((b.until-now)/1000))).join(' + '):'');
 
   const hot=now<buffs.over.until;
   chip.classList.toggle('hot',hot);
@@ -1274,12 +1281,12 @@ function render(){
 
   const i=unitIndex(S.bits);
   if(i>=LASTU&&S.bits>=UNIT_MB[LASTU]*1024n){
-    setText($('nextName'),'Além de qualquer nome');setText($('nextPct'),'∞');$('nextFill').style.width='100%';
+    setText($('nextName'),T.beyond);setText($('nextPct'),'∞');$('nextFill').style.width='100%';
   }else{
     const nx=Math.min(i+1,LASTU),lo=i===0?0:log10Big(UNIT_MB[i]),hi=i===LASTU?log10Big(UNIT_MB[i]*1024n):log10Big(UNIT_MB[nx]);
     let p=i===0?Number(S.bits)/8000:(log10Big(S.bits)-lo)/(hi-lo);
     p=Math.max(0,Math.min(1,p));
-    setText($('nextName'),i===LASTU?'Rumo ao desconhecido':`Rumo ao ${UNIT_NAMES[nx]}`);
+    setText($('nextName'),i===LASTU?T.towardUnknown:T.toward(UNIT_NAMES[nx]));
     setText($('nextPct'),Math.floor(p*100)+'%');
     $('nextFill').style.width=(p*100).toFixed(1)+'%';
   }
@@ -1297,7 +1304,7 @@ function render(){
     e.b.classList.toggle('mystery',mystery);
     if(mystery){
       setText(e.ref,'?');setText(e.name,'???');
-      setText(e.desc,`Junte ${fmt(g.revealMb)} no total para revelar este componente.`);
+      setText(e.desc,T.mystery(fmt(g.revealMb)));
       setText(e.cost,'');setText(e.own,'');
       e.b.classList.add('poor');e.b.setAttribute('aria-disabled','true');
       return;
@@ -1305,9 +1312,9 @@ function render(){
     setText(e.ref,g.ref);setText(e.name,g.name);
     const each=unitBps(g);
     setText(e.desc,S.owned[g.id]>0
-      ?`${g.desc} Cada um gera ${fmt(each)}/s, total ${fmt(each*BigInt(S.owned[g.id])*prodBuff())}/s.`
-      :`${g.desc} Gera ${fmt(each)}/s.`);
-    setText(e.cost,(S.qty>1?`${S.qty} por `:'')+fmt(c));
+      ?T.genEach(g.desc,fmt(each),fmt(each*BigInt(S.owned[g.id])*prodBuff()))
+      :T.genGen(g.desc,fmt(each)));
+    setText(e.cost,(S.qty>1?T.qtyFor(S.qty):'')+fmt(c));
     setText(e.own,S.owned[g.id]?String(S.owned[g.id]):'');
     const poor=S.bits<c;
     e.b.classList.toggle('poor',poor);
@@ -1324,8 +1331,8 @@ function render(){
     const poss=algosPossible(),gain=Math.max(0,poss-S.algos);
     const nextMb=fromLog10(3*Math.log10(poss+1)+LOG_GB_MB);
     setText($('compInfo'),gain>0
-      ?`Comprimir agora rende ${fmtCount(gain)} ${gain===1?'algoritmo':'algoritmos'}. O próximo vem quando você tiver gerado ${fmt(nextMb)} desde sempre.`
-      :`Você tem ${fmtCount(S.algos)} ${S.algos===1?'algoritmo':'algoritmos'}. O próximo vem quando você tiver gerado ${fmt(nextMb)} desde sempre (agora: ${fmt(S.allTime)}).`);
+      ?T.compGain(T.algos(gain,fmtCount(gain)),fmt(nextMb))
+      :T.compHave(T.algos(S.algos,fmtCount(S.algos)),fmt(nextMb),fmt(S.allTime)));
     const btn=$('compBtn');
     if(!btn.dataset.armed)btn.disabled=gain<1;
   }
@@ -1333,10 +1340,10 @@ function render(){
   setText($('stTotal'),fmt(S.total));
   setText($('stAll'),fmt(S.allTime));
   setText($('stDigits'),String((S.allTime/K).toString().length));
-  setText($('stClicks'),S.clicks.toLocaleString('pt-BR'));
-  setText($('stOver'),S.overclocks.toLocaleString('pt-BR'));
-  setText($('stPackets'),S.packets.toLocaleString('pt-BR')+(S.legends?` (${S.legends} ${S.legends===1?'lendário':'lendários'})`:''));
-  setText($('stMis'),S.missionsDone.toLocaleString('pt-BR'));
+  setText($('stClicks'),S.clicks.toLocaleString(LOC));
+  setText($('stOver'),S.overclocks.toLocaleString(LOC));
+  setText($('stPackets'),S.packets.toLocaleString(LOC)+(S.legends?T.legends(S.legends.toLocaleString(LOC)):''));
+  setText($('stMis'),S.missionsDone.toLocaleString(LOC));
   setText($('stAch'),`+${achSet.size}%`);
   setText($('stAlgos'),`${fmtCount(S.algos)} (×${multStr()})`);
   setText($('stTime'),fmtTime(S.played));
@@ -1346,14 +1353,15 @@ function render(){
 }
 
 /* ---------- Debug ---------- */
-function dbgGive(v,label){S.cheated=true;addBits(v);SFX.buy();Circuit.burst(12);toast('Debug',`${label}: +${fmt(v)}`);render()}
+function dbgGive(v,label){S.cheated=true;addBits(v);SFX.buy();Circuit.burst(12);toast(T.dbg.debugT||'Debug',`${label}: +${fmt(v)}`);render()}
 (function(){
   const box=$('dbgGrid');
   const mk=(txt,fn,title)=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=txt;if(title)b.title=title;b.addEventListener('click',fn);box.appendChild(b)};
-  for(let i=2;i<UNITS.length;i++)mk('+1 '+UNITS[i],()=>dbgGive(UNIT_MB[i],`1 ${UNIT_NAMES[i]}`),UNIT_NAMES[i]);
-  mk('+1 googol',()=>dbgGive((10n**100n)*K,'Um googol de bits'),'10 elevado a 100 bits');
-  mk('Dobrar bits',()=>dbgGive(S.bits>K?S.bits:K,'Bits dobrados'));
-  mk('+1 hora',()=>{const v=baseBps()*3600n;if(v<=0n){toast('Debug','Compre algum componente primeiro: sem produção, uma hora rende zero.');return}dbgGive(v,'1 hora de produção')},'Uma hora da produção atual');
+  const D=T.dbg;
+  for(let i=2;i<UNITS.length;i++)mk('+1 '+UNITS[i],()=>dbgGive(UNIT_MB[i],D.one(UNIT_NAMES[i])),UNIT_NAMES[i]);
+  mk(D.googol,()=>dbgGive((10n**100n)*K,D.googolL),D.googolT);
+  mk(D.double,()=>dbgGive(S.bits>K?S.bits:K,D.doubled));
+  mk(D.hour,()=>{const v=baseBps()*3600n;if(v<=0n){toast('Debug',D.hourNone);return}dbgGive(v,D.hourL)},D.hourT);
 })();
 
 /* ---------- Placa animada ---------- */
@@ -1647,20 +1655,21 @@ const Circuit=(function(){
 
 /* ---------- Pesquisa ---------- */
 const RS=[
-  {id:'c1',br:0,row:0,name:'Dedos ágeis',desc:'Cliques ×2.',cost:1,req:[]},
-  {id:'c2',br:0,row:1,name:'Overclock estável',desc:'O overclock dura 15 s e dá ×7.',cost:2,req:['c1']},
-  {id:'c3',br:0,row:2,name:'Clique crítico',desc:'10% de chance de um clique valer ×10.',cost:3,req:['c2']},
-  {id:'c4',br:0,row:3,name:'Mão do sinal',desc:'Cada clique soma mais 3% da produção.',cost:5,req:['c3']},
-  {id:'p1',br:1,row:0,name:'Paralelismo',desc:'Produção ×1,5.',cost:1,req:[]},
-  {id:'p2',br:1,row:1,name:'Cache L1',desc:'Componentes 10% mais baratos.',cost:2,req:['p1']},
-  {id:'p3',br:1,row:2,name:'Sinergia',desc:'Cada tipo de componente que você tem soma +3% de produção.',cost:3,req:['p2']},
-  {id:'p4',br:1,row:3,name:'Escalonamento',desc:'Produção ×3.',cost:5,req:['p3']},
-  {id:'n1',br:2,row:0,name:'Antena',desc:'Pacotes aparecem 40% mais vezes.',cost:1,req:[]},
-  {id:'n2',br:2,row:1,name:'Firewall',desc:'Vírus só cortam metade da produção e trazem menos bugs.',cost:2,req:['n1']},
-  {id:'n3',br:2,row:2,name:'Contratos premium',desc:'Recompensas de contratos, vírus e minijogos ×2.',cost:3,req:['n2']},
-  {id:'n4',br:2,row:3,name:'Sorte quântica',desc:'Chance de pacote lendário sobe de 5% para 12%.',cost:5,req:['n3']},
-  {id:'z', br:1,row:4,name:'Singularidade',desc:'Produção e cliques ×2. Ganhos offline completos, por até 8 horas.',cost:10,req:['c4','p4','n4']},
+  {id:'c1',br:0,row:0,cost:1,req:[]},
+  {id:'c2',br:0,row:1,cost:2,req:['c1']},
+  {id:'c3',br:0,row:2,cost:3,req:['c2']},
+  {id:'c4',br:0,row:3,cost:5,req:['c3']},
+  {id:'p1',br:1,row:0,cost:1,req:[]},
+  {id:'p2',br:1,row:1,cost:2,req:['p1']},
+  {id:'p3',br:1,row:2,cost:3,req:['p2']},
+  {id:'p4',br:1,row:3,cost:5,req:['p3']},
+  {id:'n1',br:2,row:0,cost:1,req:[]},
+  {id:'n2',br:2,row:1,cost:2,req:['n1']},
+  {id:'n3',br:2,row:2,cost:3,req:['n2']},
+  {id:'n4',br:2,row:3,cost:5,req:['n3']},
+  {id:'z', br:1,row:4,cost:10,req:['c4','p4','n4']},
 ];
+RS.forEach(r=>{r.name=T.research[r.id][0];r.desc=T.research[r.id][1]});
 const RMAP=Object.fromEntries(RS.map(r=>[r.id,r]));
 function rpEarned(){return S.maxEra+S.rpComp+Object.keys(S.secret).length}
 function rpSpent(){return S.research.reduce((a,id)=>a+(RMAP[id]?RMAP[id].cost:0),0)}
@@ -1668,7 +1677,7 @@ function rpFree(){return rpEarned()-rpSpent()}
 const resEls={};
 (function(){
   const grid=$('resGrid');
-  ['Cliques','Produção','Rede'].forEach((n,i)=>{const h=document.createElement('div');h.className='rhead';h.style.gridColumn=i+1;h.style.gridRow=1;h.textContent=n;grid.appendChild(h)});
+  T.resHeads.forEach((n,i)=>{const h=document.createElement('div');h.className='rhead';h.style.gridColumn=i+1;h.style.gridRow=1;h.textContent=n;grid.appendChild(h)});
   RS.forEach(r=>{
     const b=document.createElement('button');
     b.className='rnode'+(r.row>0?' hasup':'')+(r.id==='z'?' final':'');
@@ -1682,21 +1691,21 @@ const resEls={};
 function buyResearch(id){
   const r=RMAP[id];if(researchSet.has(id))return;
   const miss=r.req.filter(q=>!researchSet.has(q));
-  if(miss.length){SFX.poor();toast('Pesquisa bloqueada',`Antes, pesquise: ${miss.map(q=>RMAP[q].name).join(', ')}.`);return}
-  if(rpFree()<r.cost){SFX.poor();toast('Faltam pontos',`Esta pesquisa custa ${r.cost} ${r.cost===1?'ponto':'pontos'}. Ganhe mais chegando em novas eras, comprimindo ou achando segredos.`);return}
+  if(miss.length){SFX.poor();toast(T.resLockedT,T.resLockedBody(miss.map(q=>RMAP[q].name).join(', ')));return}
+  if(rpFree()<r.cost){SFX.poor();toast(T.resPointsT,T.resPointsBody(r.cost));return}
   researchSet.add(id);S.research.push(id);
   SFX.upg();setTimeout(()=>SFX.ready(),180);Circuit.ring('#7cc0ff');Circuit.burst(10);
-  toast('Pesquisa concluída',`${r.name}: ${r.desc}`);
+  toast(T.resDoneT,`${r.name}: ${r.desc}`);
   render();
 }
 function renderResearch(){
   const free=rpFree();
-  setText($('rpCount'),`${free} ${free===1?'ponto disponível':'pontos disponíveis'}`);
+  setText($('rpCount'),T.rpCount(free));
   RS.forEach(r=>{
     const b=resEls[r.id],own=researchSet.has(r.id),open=r.req.every(q=>researchSet.has(q));
     b.classList.toggle('own',own);b.classList.toggle('avail',!own&&open&&free>=r.cost);b.classList.toggle('locked',!own&&!open);
     b.setAttribute('aria-pressed',own?'true':'false');
-    setText(b.querySelector('.rc'),own?'Concluída':`${r.cost} ${r.cost===1?'ponto':'pontos'}`);
+    setText(b.querySelector('.rc'),own?T.resOwned:T.resCost(r.cost));
   });
 }
 
@@ -1712,10 +1721,10 @@ function eventsTick(now){
 }
 function startStorm(){
   const now=Date.now();
-  buffs.event={m:3n,until:now+45000,label:'Tempestade solar: produção ×3'};
+  buffs.event={m:3n,until:now+45000,label:T.buffStorm};
   S.storms++;
   const mb=$('mainBoard');mb.classList.add('storm');setTimeout(()=>mb.classList.remove('storm'),45000);
-  toast('Tempestade solar!','Partículas carregadas atingem a placa: produção ×3 por 45 segundos.');
+  toast(T.stormT,T.stormBody);
   SFX.over();Circuit.ring('#7cc0ff');Circuit.burst(24);
 }
 function startVirus(){
@@ -1724,13 +1733,13 @@ function startVirus(){
   const n=R('n2')?3:5;
   virus={g:g.id,until:Date.now()+40000,left:n,bugs:[]};
   for(let i=0;i<n;i++)spawnBug();
-  toast('Vírus detectado!',`Um vírus travou ${R('n2')?'metade da produção dos':'a produção dos'} ${g.pl}. Clique nos ${n} bugs na placa em até 40 segundos.`);
+  toast(T.virusT,T.virusBody(R('n2'),g.pl,n));
   tone(90,0.5,'sawtooth',0.05);tone(70,0.6,'square',0.03,0.2);
   Circuit.ring('#ff5a47');render();
 }
 function spawnBug(){
   const b=document.createElement('button');
-  b.className='bug';b.textContent='BUG';b.setAttribute('aria-label','Bug: clique para eliminar');
+  b.className='bug';b.textContent='BUG';b.setAttribute('aria-label',T.bugAria);
   b.style.left=rand(6,80)+'%';b.style.top=rand(8,78)+'%';
   b.style.setProperty('--dx',Math.round(rand(-60,60))+'px');b.style.setProperty('--dy',Math.round(rand(-40,40))+'px');
   b.style.animationDuration=rand(1.3,2.4).toFixed(2)+'s';
@@ -1745,9 +1754,9 @@ function endVirus(cleaned){
   const g=GMAP[virus.g];virus.bugs.forEach(b=>b.remove());virus=null;
   if(cleaned){
     S.virusCleaned++;const gain=rewardTime(120*(R('n3')?2:1));
-    toast('Vírus eliminado!',`Os ${g.pl} voltaram a funcionar. Recompensa: ${fmt(gain)}.`,'ach-t');
+    toast(T.virusCleanT,T.virusCleanBody(g.pl,fmt(gain)),'ach-t');
     SFX.claim();Circuit.ring('#5dff8a');
-  }else toast('O vírus foi embora',`Os ${g.pl} voltaram ao normal, mas sem recompensa desta vez.`);
+  }else toast(T.virusGoneT,T.virusGoneBody(g.pl));
   render();
 }
 function clearVirus(){if(virus){virus.bugs.forEach(b=>b.remove());virus=null}}
@@ -1755,11 +1764,11 @@ function spawnFix(){
   if(fixEl)return;
   fixEl=document.createElement('button');
   fixEl.className='packet fix';fixEl.textContent='FIX';
-  fixEl.setAttribute('aria-label','Chamado de manutenção: clique para abrir um minijogo');
+  fixEl.setAttribute('aria-label',T.fixAria);
   fixEl.style.left=rand(6,80)+'vw';fixEl.style.top=rand(15,75)+'vh';
   fixEl.addEventListener('click',()=>{fixEl.remove();fixEl=null;openMinigame()});
   document.body.appendChild(fixEl);fixEnd=Date.now()+20000;
-  SFX.pktIn();toast('Chamado de manutenção','Um botão FIX verde apareceu na tela. Clique nele para jogar um minijogo valendo recompensa.');
+  SFX.pktIn();toast(T.fixT,T.fixBody);
 }
 
 /* ---------- Minijogos ---------- */
@@ -1778,16 +1787,16 @@ function openModal(title,sub,secs,onTimeout){
   return $('mBody');
 }
 function closeModal(){$('modal').hidden=true;modalOpen=false;clearInterval(modalTimer);modalOnTimeout=null;mgTok++}
-function giveUp(){closeModal();toast('Chamado encerrado','Você desistiu. Sem recompensa desta vez.')}
+function giveUp(){closeModal();toast(T.giveUpT,T.giveUpBody)}
 $('mClose').addEventListener('click',giveUp);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen)giveUp()});
 function mgWin(name){
   closeModal();S.minigames++;
   const g=rewardTime(180*(R('n3')?2:1));
-  toast(`${name}: sucesso!`,`Recompensa: ${fmt(g)}.`,'ach-t');
+  toast(T.mgWinT(name),T.secretBody(fmt(g)),'ach-t');
   SFX.claim();Circuit.ring('#5dff8a');Circuit.burst(16);render();
 }
-function mgFail(msg){closeModal();toast('Não foi dessa vez',msg);SFX.poor()}
+function mgFail(msg){closeModal();toast(T.mgFailT,msg);SFX.poor()}
 function openMinigame(kind){
   const ks=['gates','simon','byte'];
   kind=kind||ks[Math.floor(Math.random()*ks.length)];
@@ -1808,50 +1817,50 @@ function mgGates(){
   const maxN=Math.min(4,2+Math.floor(S.maxEra/3));
   const pool=EXPR.filter(e=>e.n<=maxN),ex=pool[Math.floor(Math.random()*pool.length)];
   let v;do{v=Array.from({length:ex.n},()=>Math.random()<.5?1:0)}while(ex.f(v)===1);
-  const body=openModal('Portas lógicas','Ligue e desligue as entradas até a saída acender.',25,()=>mgFail('O tempo acabou antes de a saída acender.'));
+  const body=openModal(T.gates.title,T.gates.sub,25,()=>mgFail(T.gates.fail));
   const tok=mgTok;let done=false;
   const f=document.createElement('div');f.className='expr';
   ex.t.forEach(t=>{const s=document.createElement('span');s.className='tk '+(/^[A-D]$/.test(t)?'var':/[()]/.test(t)?'par':'op');s.textContent=t;f.appendChild(s)});
   const sw=document.createElement('div');sw.className='switches';
-  const out=document.createElement('div');out.className='gout';out.innerHTML='<span class="gled2"></span><span>Saída</span>';
+  const out=document.createElement('div');out.className='gout';out.innerHTML='<span class="gled2"></span><span></span>';out.lastChild.textContent=T.gates.out;
   const btns=v.map((x,i)=>{const b=document.createElement('button');b.className='sw';b.addEventListener('click',()=>{if(done)return;v[i]^=1;tone(v[i]?900:500,0.04,'square',0.03);upd()});sw.appendChild(b);return b});
   function upd(){
     btns.forEach((b,i)=>{b.textContent=`${'ABCD'[i]} = ${v[i]}`;b.setAttribute('aria-pressed',v[i]?'true':'false')});
     const o=ex.f(v);out.classList.toggle('on',o===1);
-    if(o===1){done=true;setTimeout(()=>{if(tok===mgTok)mgWin('Portas lógicas')},500)}
+    if(o===1){done=true;setTimeout(()=>{if(tok===mgTok)mgWin(T.gates.title)},500)}
   }
   body.append(f,sw,out);upd();
 }
 function mgSimon(){
   const len=3+Math.min(3,Math.floor(S.maxEra/2));
   const seqv=Array.from({length:len},()=>Math.floor(Math.random()*4));
-  const body=openModal('Memória de barramento',`Observe a sequência de ${len} sinais e repita na mesma ordem.`,20+len*3,()=>mgFail('O tempo acabou.'));
+  const body=openModal(T.simon.title,T.simon.sub(len),20+len*3,()=>mgFail(T.timeUp));
   const tok=mgTok;
   const pads=document.createElement('div');pads.className='pads';
   const freqs=[330,415,494,659];
-  const ps=[0,1,2,3].map(i=>{const b=document.createElement('button');b.className='pad p'+i;b.setAttribute('aria-label','Sinal '+(i+1));b.disabled=true;pads.appendChild(b);return b});
-  const st=document.createElement('p');st.className='mstate';st.textContent='Observe…';
+  const ps=[0,1,2,3].map(i=>{const b=document.createElement('button');b.className='pad p'+i;b.setAttribute('aria-label',T.simon.pad(i+1));b.disabled=true;pads.appendChild(b);return b});
+  const st=document.createElement('p');st.className='mstate';st.textContent=T.simon.watch;
   body.append(pads,st);
   let pos=0,done=false;
   const flashPad=i=>{ps[i].classList.add('lit');rawTone(freqs[i],0.25,'triangle',0.06);setTimeout(()=>ps[i].classList.remove('lit'),280)};
   seqv.forEach((i,k)=>setTimeout(()=>{if(tok===mgTok)flashPad(i)},700+k*560));
-  setTimeout(()=>{if(tok!==mgTok)return;ps.forEach(b=>b.disabled=false);st.textContent='Sua vez!';ps[0].focus()},700+len*560);
+  setTimeout(()=>{if(tok!==mgTok)return;ps.forEach(b=>b.disabled=false);st.textContent=T.simon.turn;ps[0].focus()},700+len*560);
   ps.forEach((b,i)=>b.addEventListener('click',()=>{
     if(done)return;flashPad(i);
-    if(i!==seqv[pos]){done=true;setTimeout(()=>{if(tok===mgTok)mgFail('A sequência era diferente.')},350);return}
-    pos++;st.textContent=`${pos} de ${len}`;
-    if(pos===len){done=true;setTimeout(()=>{if(tok===mgTok)mgWin('Memória de barramento')},450)}
+    if(i!==seqv[pos]){done=true;setTimeout(()=>{if(tok===mgTok)mgFail(T.simon.wrong)},350);return}
+    pos++;st.textContent=T.ofN(pos,len);
+    if(pos===len){done=true;setTimeout(()=>{if(tok===mgTok)mgWin(T.simon.title)},450)}
   }));
 }
 function mgByte(){
   const rounds=3;let r=0,done=false;
-  const body=openModal('Decodifique o byte','Leia os 8 LEDs em binário e escolha o número certo. São 3 rodadas seguidas.',30,()=>mgFail('O tempo acabou.'));
+  const body=openModal(T.byte.title,T.byte.sub,30,()=>mgFail(T.timeUp));
   const row=document.createElement('div');row.className='byte';
   const lds=Array.from({length:8},()=>{const s=document.createElement('span');s.className='bled';row.appendChild(s);return s});
   const hint=document.createElement('div');hint.className='bhint';
   [128,64,32,16,8,4,2,1].forEach(n=>{const s=document.createElement('span');s.textContent=n;hint.appendChild(s)});
   const opts=document.createElement('div');opts.className='opts';
-  const st=document.createElement('p');st.className='mstate';st.textContent=`0 de ${rounds}`;
+  const st=document.createElement('p');st.className='mstate';st.textContent=T.ofN(0,rounds);
   body.append(row,hint,opts,st);
   function next(){
     const v=1+Math.floor(Math.random()*255);
@@ -1862,8 +1871,8 @@ function mgByte(){
       const b=document.createElement('button');b.className='btn ghost';b.textContent=w;
       b.addEventListener('click',()=>{
         if(done)return;
-        if(w===v){r++;rawTone(1200,0.08,'square',0.04);st.textContent=`${r} de ${rounds}`;if(r>=rounds){done=true;mgWin('Decodifique o byte')}else next()}
-        else{done=true;mgFail(`A resposta era ${v}.`)}
+        if(w===v){r++;rawTone(1200,0.08,'square',0.04);st.textContent=T.ofN(r,rounds);if(r>=rounds){done=true;mgWin(T.byte.title)}else next()}
+        else{done=true;mgFail(T.byte.answer(v))}
       });
       opts.appendChild(b);
     });
@@ -1900,11 +1909,11 @@ const Music=(function(){
   }};
 })();
 const musicBtn=$('musicBtn');
-function syncMusic(){musicBtn.setAttribute('aria-pressed',S.music?'true':'false');musicBtn.textContent=S.music?'Música ligada':'Música desligada'}
+function syncMusic(){musicBtn.setAttribute('aria-pressed',S.music?'true':'false');musicBtn.textContent=S.music?T.musicOn:T.musicOff}
 musicBtn.addEventListener('click',()=>{S.music=!S.music;syncMusic();Music.set(S.music);save()});
 
 /* ---------- Dicas iniciais ---------- */
-const TIPS=['Clique no chip para gerar seus primeiros bits.','Com 15 bits, compre um interruptor na loja. Ele gera bits sozinho, mesmo sem você clicar.','Agora é com você: cumpra contratos, pegue os pacotes PKT que surgem na tela e descubra de onde vem o sinal.'];
+const TIPS=T.tips;
 function checkTut(){
   if(S.tut===0&&S.clicks>=5)S.tut=1;
   if(S.tut===1&&S.owned.sw>=1){S.tut=2;setTimeout(()=>{if(S.tut===2){S.tut=3;renderTip()}},15000)}
@@ -1915,10 +1924,11 @@ $('tipClose').addEventListener('click',()=>{S.tut=3;renderTip()});
 
 /* ---------- Abertura e barra fixa ---------- */
 function splash(){
-  if(reduce.matches)return;
+  let skip=false;try{skip=!!sessionStorage.getItem('bit-a-bit-nosplash');sessionStorage.removeItem('bit-a-bit-nosplash')}catch(e){}
+  if(reduce.matches||skip)return;
   const el=$('splash'),pre=$('splashText');el.hidden=false;
-  const lines=['BIT A BIT BIOS v5.0','Verificando memória… OK',`Componentes detectados: ${ownedTotal().toLocaleString('pt-BR')}`,
-    S.lore.length>2?'Sinal desconhecido no barramento: PRESENTE':'Barramento: silencioso',`Era atual: ${ERAS[S.era].name}`,'Iniciando…'];
+  const B=T.boot,lines=['BIT A BIT BIOS v5.0',B.mem,B.comps(ownedTotal().toLocaleString(LOC)),
+    S.lore.length>2?B.signal:B.quiet,B.era(ERAS[S.era].name),B.start];
   let i=0,closed=false;
   const iv=setInterval(()=>{if(i<lines.length)pre.textContent+=lines[i++]+'\n';else{clearInterval(iv);setTimeout(close,400)}},170);
   function close(){if(closed)return;closed=true;clearInterval(iv);el.classList.add('out');setTimeout(()=>{el.hidden=true},350)}
@@ -1933,38 +1943,38 @@ $('hud').addEventListener('click',()=>scrollTo({top:0,behavior:reduce.matches?'a
 let DB=null,USER=null,myId=null,rankRows=[],rankKey='',rankAt=0,rankSending=false;
 async function initRank(){
   const off=msg=>{setText($('rankMsg'),msg);$('rankBtn').hidden=true};
-  if(typeof claude==='undefined'||!claude.use){off('O ranking funciona na página publicada, com login no Claude.');return}
-  setText($('rankMsg'),'Conectando ao ranking…');
+  if(typeof claude==='undefined'||!claude.use){off(T.rank.needPage);return}
+  setText($('rankMsg'),T.rank.connecting);
   let db=null,user=null;
   try{[db,user]=await Promise.all([claude.use('db'),claude.use('user')])}catch(e){}
-  if(!db||!user){off('Ranking indisponível aqui. Abra a página publicada com login para participar.');return}
+  if(!db||!user){off(T.rank.unavailable);return}
   DB=db;USER=user;
   try{myId=await user.id()}catch(e){}
-  if(!myId){off('Entre na sua conta para participar do ranking.');return}
+  if(!myId){off(T.rank.login);return}
   let got=false;
-  const to=setTimeout(()=>{if(!got)setText($('rankMsg'),'O ranking está demorando para responder.')},10000);
+  const to=setTimeout(()=>{if(!got)setText($('rankMsg'),T.rank.slow)},10000);
   db.collection('ranking').onSnapshot(snap=>{
     got=true;clearTimeout(to);
     rankRows=snap.docs.map(d=>Object.assign({id:d.id},d.data()||{}));
-    if($('rankMsg').textContent.startsWith('Conectando')||$('rankMsg').textContent.startsWith('O ranking está'))setText($('rankMsg'),'');
+    if($('rankMsg').textContent===T.rank.connecting||$('rankMsg').textContent===T.rank.slow)setText($('rankMsg'),'');
     renderRank();
-  },()=>{clearTimeout(to);setText($('rankMsg'),'Não foi possível carregar o ranking agora.')});
+  },()=>{clearTimeout(to);setText($('rankMsg'),T.rank.loadFail)});
   $('rankBtn').hidden=false;$('rankBtn').disabled=false;
 }
 async function renderRank(){
   const box=$('rankList');
   const rows=rankRows.filter(r=>typeof r.score==='number'&&isFinite(r.score)&&typeof r.all==='string'&&/^\d{1,400}$/.test(r.all)).sort((a,b)=>b.score-a.score).slice(0,20);
-  if(!rows.length){box.innerHTML='';const li=document.createElement('li');li.className='rempty';li.textContent='Ninguém no ranking ainda. Seja o primeiro!';box.appendChild(li);return}
+  if(!rows.length){box.innerHTML='';const li=document.createElement('li');li.className='rempty';li.textContent=T.rank.empty;box.appendChild(li);return}
   let ps={};try{ps=await USER.profiles(rows.map(r=>r.id))}catch(e){}
   box.innerHTML='';
   rows.forEach((r,i)=>{
     const li=document.createElement('li');if(r.id===myId)li.className='me';
     const pos=document.createElement('span');pos.className='rpos';pos.textContent=String(i+1);
     const nm=document.createElement('span');nm.className='rname';
-    nm.textContent=((ps[r.id]&&ps[r.id].name)||'Alguém')+(r.id===myId?' (você)':'');
+    nm.textContent=((ps[r.id]&&ps[r.id].name)||T.rank.someone)+(r.id===myId?T.rank.you:'');
     const meta=document.createElement('span');meta.className='rmeta';
     const era=ERAS[r.era|0];
-    meta.textContent=`${era?era.name:''}, ${(r.ach|0)} conquistas${r.debug?', usou debug':''}`;
+    meta.textContent=T.rank.meta(era?era.name:'',r.ach|0,!!r.debug);
     nm.appendChild(meta);
     const sc=document.createElement('span');sc.className='rscore';
     let total='?';try{total=fmt(BigInt(r.all)*K)}catch(e){}
@@ -1980,16 +1990,16 @@ async function submitRank(manual){
   const mine=rankRows.find(r=>r.id===myId);
   if(mine&&typeof mine.score==='number'&&mine.score>score+1e-9){
     rankKey=key;
-    if(manual)setText($('rankMsg'),'Seu recorde salvo no ranking já é maior que o progresso deste navegador.');
+    if(manual)setText($('rankMsg'),T.rank.higher);
     return;
   }
   rankSending=true;rankKey=key;rankAt=Date.now();
   try{
     await DB.collection('ranking').doc(myId).set({score,all:(S.allTime/K).toString(),unit:S.maxUnit,era:S.maxEra,ach:achSet.size,comp:S.compressions,debug:!!S.cheated,at:Date.now()});
     S.ranked=true;
-    if(manual){setText($('rankMsg'),'Recorde enviado.');SFX.ready()}
+    if(manual){setText($('rankMsg'),T.rank.sent);SFX.ready()}
   }catch(e){
-    setText($('rankMsg'),e&&e.code==='permission_denied'?'Você pode ver o ranking, mas não tem permissão para enviar recordes nesta página.':'Não foi possível enviar agora. Tente de novo mais tarde.');
+    setText($('rankMsg'),e&&e.code==='permission_denied'?T.rank.denied:T.rank.sendFail);
   }
   rankSending=false;
 }
@@ -2000,11 +2010,11 @@ function renderExtras(){
   renderResearch();
   G.forEach((g,k)=>genEls[k].b.classList.toggle('infected',!!(virus&&virus.g===g.id)));
   for(const id in benchParts)benchParts[id].classList.toggle('infected',!!(virus&&virus.g===id));
-  setText($('stRes'),`${rpFree()} livres de ${rpEarned()}`);
-  setText($('stVir'),S.virusCleaned.toLocaleString('pt-BR'));
-  setText($('stMg'),S.minigames.toLocaleString('pt-BR'));
+  setText($('stRes'),T.stRes(rpFree(),rpEarned()));
+  setText($('stVir'),S.virusCleaned.toLocaleString(LOC));
+  setText($('stMg'),S.minigames.toLocaleString(LOC));
   const [n,u]=parts(S.bits);
-  setText($('hudAmt'),n+' '+u);setText($('hudRate'),fmt(totalBps())+' por segundo');
+  setText($('hudAmt'),n+' '+u);setText($('hudRate'),T.rate(fmt(totalBps())));
 }
 function extrasInit(){
   if(S.tut<3&&S.clicks>30)S.tut=3;
@@ -2016,12 +2026,13 @@ function extrasInit(){
 (function(){
   const box=$('dbgGrid');
   const mk=(txt,fn)=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=txt;b.addEventListener('click',()=>{S.cheated=true;fn()});box.appendChild(b)};
-  mk('+5 pesquisa',()=>{S.rpComp+=5;toast('Debug','+5 pontos de pesquisa.');render()});
-  mk('Vírus',()=>{if(virus){toast('Debug','Já existe um vírus ativo.');return}if(!G.some(g=>S.owned[g.id]>0)){toast('Debug','Compre um componente primeiro.');return}startVirus()});
-  mk('Tempestade',startStorm);
-  mk('Portas lógicas',()=>openMinigame('gates'));
-  mk('Memória',()=>openMinigame('simon'));
-  mk('Byte',()=>openMinigame('byte'));
+  const D=T.dbg;
+  mk(D.rp,()=>{S.rpComp+=5;toast('Debug',D.rpMsg);render()});
+  mk(D.virus,()=>{if(virus){toast('Debug',D.virusActive);return}if(!G.some(g=>S.owned[g.id]>0)){toast('Debug',D.needGen);return}startVirus()});
+  mk(D.storm,startStorm);
+  mk(D.gates,()=>openMinigame('gates'));
+  mk(D.simon,()=>openMinigame('simon'));
+  mk(D.byte,()=>openMinigame('byte'));
 })();
 
 /* ---------- Laço principal ---------- */
@@ -2036,13 +2047,13 @@ function tick(){
 
   const ui=unitIndex(S.bits);
   if(ui>S.maxUnit){
-    for(let k=S.maxUnit+1;k<=ui;k++)toast(`Você chegou ao ${UNIT_NAMES[k]}!`,FACTS[k]);
+    for(let k=S.maxUnit+1;k<=ui;k++)toast(T.unitT(UNIT_NAMES[k]),FACTS[k]);
     S.maxUnit=ui;SFX.unit();Circuit.ring();
   }
   const era=currentEra();
   if(era!==S.era){
     if(era>S.era){
-      toast(`Nova era: ${ERAS[era].name}`,ERAS[era].desc+(era>S.maxEra?' Você ganhou 1 ponto de pesquisa.':''));
+      toast(T.eraT(ERAS[era].name),ERAS[era].desc+(era>S.maxEra?T.eraRP:''));
       SFX.era();Circuit.ring('#ffffff');
       chip.classList.remove('flash');void chip.offsetWidth;chip.classList.add('flash');
       bootChip(ERAS[era].chip);
@@ -2104,7 +2115,7 @@ function load(){
     const away=(Date.now()-d.t)/1000;
     if(away>30){
       const zz=R('z'),g=baseBps()*BigInt(Math.floor(Math.min(away,zz?28800:7200)))/(zz?1n:2n);
-      if(g>0n){addBits(g);setTimeout(()=>toast('Bem-vindo de volta',`Enquanto você estava fora, suas máquinas geraram ${fmt(g)}.`),300)}
+      if(g>0n){addBits(g);setTimeout(()=>toast(T.welcomeT,T.welcomeBody(fmt(g))),300)}
     }
   }
 }
