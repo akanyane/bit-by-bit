@@ -1,6 +1,6 @@
-<p align="center"><img src="favicon.svg" width="96" alt="Bit a Bit logo: a chip with the number 1"></p>
+<p align="center"><img src="favicon.svg" width="96" alt="Bit by Bit logo: a chip with the number 1"></p>
 
-# Bit a Bit
+# Bit by Bit
 
 **Start with one bit. Find out what lies beyond the last byte.**
 

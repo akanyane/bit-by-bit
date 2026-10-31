@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "package-name": "bit-a-bit",
+      "package-name": "bit-by-bit",
       "changelog-path": "CHANGELOG.md",
       "bump-minor-pre-major": true
     }

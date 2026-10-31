@@ -1,4 +1,4 @@
-/* Bit a Bit — English (default and fallback language).
+/* Bit by Bit — English (default and fallback language).
    Every key used by the game is defined here. Other language files may omit keys;
    missing ones fall back to these. */
 window.I18N = window.I18N || {};

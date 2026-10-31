@@ -1,4 +1,4 @@
-/* Bit a Bit — 日本語 */
+/* Bit by Bit — 日本語 */
 window.I18N = window.I18N || {};
 I18N.ja = {
   name: '日本語', locale: 'ja-JP', htmlLang: 'ja',
