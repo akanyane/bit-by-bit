@@ -6,7 +6,7 @@
 
 An incremental browser game about the history of computing: click the chip, buy components from punched cards to Dyson spheres, and climb the data units from bits to Quettabytes and past the end of the official scale, while an unknown signal on the bus slowly decodes itself.
 
-**Play:** https://akanyane.github.io/bit-a-bit/
+**Play:** https://akanyane.github.io/bit-by-bit/
 
 *Leia em português: [README.pt-BR.md](README.pt-BR.md)*
 
@@ -28,8 +28,8 @@ An incremental browser game about the history of computing: click the chip, buy 
 No build step and no dependencies. Clone the repo and open `index.html` in a browser, or serve the folder:
 
 ```sh
-git clone https://github.com/akanyane/bit-a-bit.git
-cd bit-a-bit
+git clone https://github.com/akanyane/bit-by-bit.git
+cd bit-by-bit
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
