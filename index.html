@@ -258,12 +258,28 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 @keyframes tin{from{opacity:0;transform:translateY(10px)}}
 
 /* ---------- v5: dicas, pesquisa, eventos, minijogos, ranking ---------- */
-.sound+.sound{margin-left:0}
-.lang{margin-left:auto}
-.lang+.sound{margin-left:0}
-.lang select{font:inherit;font-weight:600;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:8px;padding:6px 8px;cursor:pointer}
-.lang select option{color:#16301f;background:#f2f5ee}
-.lang select:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
+.ctrls{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+.ctrls .sound{margin-left:0}
+.lang{position:relative}
+.lang-btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--ink);background:transparent;border-radius:8px;padding:5px 10px 5px 6px;cursor:pointer;font-weight:600;color:var(--ink);line-height:1.2}
+.lang-btn:hover,.lang-btn[aria-expanded="true"]{border-color:var(--copper);box-shadow:0 0 0 1px var(--copper)}
+.lang-code{font-family:"Chakra Petch",ui-sans-serif,system-ui,sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.08em;background:var(--chip);color:var(--copper-hi);border:1.5px solid var(--copper);border-radius:5px;padding:3px 5px 2px;min-width:3.1em;text-align:center}
+.lang-chev{width:12px;height:12px;flex:none;transition:transform .18s ease}
+.lang-btn[aria-expanded="true"] .lang-chev{transform:rotate(180deg)}
+.lang-list{position:absolute;right:0;top:calc(100% + 8px);z-index:45;margin:0;padding:6px;list-style:none;min-width:212px;max-width:calc(100vw - 32px);
+  background:var(--chip);color:#eef1ee;border:1.5px solid var(--copper);border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.4),0 0 0 4px rgba(200,138,60,.12);
+  transform-origin:top right;animation:langIn .16s ease-out}
+.lang-list[hidden]{display:none}
+@keyframes langIn{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.lang-list::before{content:"";position:absolute;top:-7px;right:18px;width:11px;height:11px;background:var(--chip);border-left:1.5px solid var(--copper);border-top:1.5px solid var(--copper);transform:rotate(45deg)}
+.lang-opt{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:500;outline:none}
+.lang-opt .lang-code{background:#0e100f;color:var(--copper)}
+.lang-opt:hover,.lang-opt:focus-visible{background:rgba(200,138,60,.16)}
+.lang-opt:focus-visible{box-shadow:inset 0 0 0 1.5px var(--copper-hi)}
+.lang-opt[aria-selected="true"]{color:var(--copper-hi);font-weight:600}
+.lang-opt[aria-selected="true"] .lang-code{color:var(--copper-hi);border-color:var(--copper-hi)}
+.lang-led{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12)}
+.lang-opt[aria-selected="true"] .lang-led{background:#5dff8a;box-shadow:0 0 8px #5dff8a}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .tip{display:flex;align-items:center;gap:10px;width:100%;max-width:520px;background:var(--chip);color:#eef1ee;border:1.5px solid var(--copper-hi);border-radius:10px;padding:10px 12px;text-align:left;font-size:15px;box-shadow:0 0 18px rgba(240,189,114,.3)}
 .tip[hidden]{display:none}
@@ -357,6 +373,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 @media (prefers-reduced-motion: reduce){
   .bug,.main-board > .bug,.tip-dot,.main-board.storm::after,.part.infected,.mbox{animation:none !important}
   .hud{transition:none}
+  .lang-chev{transition:none}
 }
 
 @media (max-width:860px){
@@ -371,7 +388,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
   .led{width:9px;height:9px}.leds{gap:4px}
 }
 @media (prefers-reduced-motion: reduce){
-  .packet,.packet::after,.toast,.toast::after,.die,.die-ref,.part.new,.chip.flash .die,.mis.enter,.logo.glitch,.term-board.unread h2::after{animation:none !important}
+  .lang-list,.packet,.packet::after,.toast,.toast::after,.die,.die-ref,.part.new,.chip.flash .die,.mis.enter,.logo.glitch,.term-board.unread h2::after{animation:none !important}
   .fill{transition:none}
 }
 </style>
@@ -380,9 +397,14 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 <header class="top">
   <h1 class="logo" id="logo" translate="no">Bit by Bit</h1>
   <p class="tag" data-i18n="tagline"></p>
-  <label class="lang"><span class="vh" data-i18n="langLabel"></span><select id="langSel"></select></label>
+  <div class="ctrls">
+  <div class="lang" id="langBox">
+    <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="langList"><span class="lang-code" id="langCode" aria-hidden="true"></span><span class="lang-name" id="langName"></span><svg class="lang-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <ul class="lang-list" id="langList" role="listbox" hidden></ul>
+  </div>
   <button class="sound" id="musicBtn" aria-pressed="false"></button>
   <button class="sound" id="soundBtn" aria-pressed="true"></button>
+  </div>
 </header>
 
 <main class="wrap">
@@ -536,13 +558,61 @@ document.querySelectorAll('[data-i18n-aria]').forEach(el=>{el.setAttribute('aria
 document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=tk(el.dataset.i18nTitle)});
 document.documentElement.style.setProperty('--inf',JSON.stringify(T.infected));
 (function(){
-  const sel=$('langSel');
-  LANGS.forEach(l=>{if(!I18N[l])return;const o=document.createElement('option');o.value=l;o.lang=I18N[l].htmlLang;o.textContent=I18N[l].name;sel.appendChild(o)});
-  sel.value=LANG;
-  sel.addEventListener('change',()=>{
-    try{localStorage.setItem(LANG_KEY,sel.value);sessionStorage.setItem('bit-a-bit-nosplash','1')}catch(e){}
-    save();location.reload();
+  const box=$('langBox'),btn=$('langBtn'),list=$('langList');
+  const CODES={en:'EN','pt-BR':'PT',es:'ES',ja:'JA',ko:'KO',de:'DE',it:'IT'};
+  const avail=LANGS.filter(l=>I18N[l]);
+  $('langCode').textContent=CODES[LANG]||LANG.toUpperCase();
+  $('langName').textContent=T.name;$('langName').lang=T.htmlLang;
+  btn.setAttribute('aria-label',`${T.langLabel}: ${T.name}`);
+  list.setAttribute('aria-label',T.langLabel);
+  const opts=avail.map(l=>{
+    const li=document.createElement('li');
+    li.className='lang-opt';li.id='lang-'+l;li.setAttribute('role','option');li.tabIndex=-1;li.lang=I18N[l].htmlLang;li.dataset.lang=l;
+    li.setAttribute('aria-selected',l===LANG?'true':'false');
+    const c=document.createElement('span');c.className='lang-code';c.setAttribute('aria-hidden','true');c.textContent=CODES[l]||l.toUpperCase();
+    const n=document.createElement('span');n.textContent=I18N[l].name;
+    const d=document.createElement('span');d.className='lang-led';
+    li.append(c,n,d);
+    li.addEventListener('click',()=>choose(l));
+    list.appendChild(li);return li;
   });
+  const isOpen=()=>!list.hidden;
+  function open(focusIdx){
+    list.hidden=false;btn.setAttribute('aria-expanded','true');
+    const i=focusIdx!=null?focusIdx:Math.max(0,avail.indexOf(LANG));
+    opts[(i+opts.length)%opts.length].focus();
+  }
+  function close(refocus){
+    if(!isOpen())return;
+    list.hidden=true;btn.setAttribute('aria-expanded','false');
+    if(refocus)btn.focus();
+  }
+  function choose(l){
+    if(l===LANG){close(true);return}
+    try{localStorage.setItem(LANG_KEY,l);sessionStorage.setItem('bit-a-bit-nosplash','1')}catch(e){}
+    save();location.reload();
+  }
+  btn.addEventListener('click',()=>isOpen()?close(false):open());
+  btn.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();open(e.key==='ArrowUp'?opts.length-1:null)}
+  });
+  list.addEventListener('keydown',e=>{
+    const i=opts.indexOf(document.activeElement);
+    const go=k=>{e.preventDefault();opts[(k+opts.length)%opts.length].focus()};
+    switch(e.key){
+      case 'ArrowDown':go(i+1);break;
+      case 'ArrowUp':go(i-1);break;
+      case 'Home':go(0);break;
+      case 'End':go(opts.length-1);break;
+      case 'Enter':case ' ':e.preventDefault();if(i>=0)choose(avail[i]);break;
+      case 'Escape':e.preventDefault();e.stopPropagation();close(true);break;
+      case 'Tab':close(false);break;
+      default:
+        if(e.key.length===1){const k=e.key.toLowerCase(),start=i+1;
+          for(let j=0;j<opts.length;j++){const o=opts[(start+j)%opts.length];if(o.textContent.slice(2).toLowerCase().startsWith(k)||o.textContent.toLowerCase().startsWith(k)){o.focus();break}}}
+    }
+  });
+  document.addEventListener('pointerdown',e=>{if(isOpen()&&!box.contains(e.target))close(false)});
 })();
 
 /* ---------- Números grandes (BigInt) ----------
