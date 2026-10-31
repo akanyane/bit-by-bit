@@ -33,6 +33,8 @@ cd bit-by-bit
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
+Add `?debug` to the URL (for example `http://localhost:8000/?debug`) to show a debug panel that adds bits, research points and triggers events on demand. Records sent to the leaderboard after using it are flagged.
+
 ## Project layout
 
 ```

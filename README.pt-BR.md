@@ -33,6 +33,8 @@ cd bit-by-bit
 python3 -m http.server 8000   # depois abra http://localhost:8000
 ```
 
+Adicione `?debug` à URL (por exemplo `http://localhost:8000/?debug`) para mostrar um painel de debug que adiciona bits e pontos de pesquisa e dispara eventos na hora. Recordes enviados ao ranking depois de usar o painel ficam marcados.
+
 ## Estrutura
 
 ```
