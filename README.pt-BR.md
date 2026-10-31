@@ -6,7 +6,7 @@
 
 Um jogo incremental no navegador sobre a história da computação: clique no chip, compre componentes que vão do cartão perfurado à esfera de Dyson e suba pelas unidades de dados, de bits a Quettabytes e além do fim da escala oficial, enquanto um sinal desconhecido no barramento vai sendo decodificado aos poucos.
 
-**Jogar:** https://akanyane.github.io/bit-a-bit/
+**Jogar:** https://akanyane.github.io/bit-by-bit/
 
 *Read in English: [README.md](README.md)*
 
@@ -28,8 +28,8 @@ Um jogo incremental no navegador sobre a história da computação: clique no ch
 Sem build e sem dependências. Clone o repositório e abra o `index.html` no navegador, ou sirva a pasta:
 
 ```sh
-git clone https://github.com/akanyane/bit-a-bit.git
-cd bit-a-bit
+git clone https://github.com/akanyane/bit-by-bit.git
+cd bit-by-bit
 python3 -m http.server 8000   # depois abra http://localhost:8000
 ```
 
