@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/akanyane/bit-by-bit/compare/v1.0.0...v1.1.0) (2026-10-31)
+
+
+### Features
+
+* hide the debug panel unless the URL has ?debug ([e5a13cb](https://github.com/akanyane/bit-by-bit/commit/e5a13cb9a5fa2406755520e4369b477f040d60ca))
+
 ## 1.0.0 (2026-10-31)
 
 
