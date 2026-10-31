@@ -227,6 +227,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 .stats dt{color:var(--silk-dim)}
 .stats dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .foot{font-size:13px;color:var(--silk-dim);margin:12px 0 0}
+.debug[hidden]{display:none}
 .dbg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
 .dbg-grid .btn{padding:8px 10px}
 .dbg-grid .btn:hover{background:var(--board2)}
@@ -495,7 +496,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
       <p class="foot" data-i18n="statsFoot"></p>
     </section>
 
-    <section class="board debug">
+    <section class="board debug" id="debugBoard" hidden>
       <h2 data-i18n="hDebug"></h2>
       <p class="sub" data-i18n="subDebug"></p>
       <div class="dbg-grid" id="dbgGrid"></div>
@@ -532,6 +533,9 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 'use strict';
 const $=id=>document.getElementById(id);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+// O painel de debug só aparece com ?debug na URL (ex.: index.html?debug).
+const DEBUG=(()=>{try{return new URLSearchParams(location.search).has('debug')}catch(e){return false}})();
+if(DEBUG)$('debugBoard').hidden=false;
 
 /* ---------- Idioma ---------- */
 const LANGS=['en','pt-BR','es','ja','ko','de','it'],LANG_KEY='bit-a-bit-lang';
@@ -1429,6 +1433,7 @@ function render(){
 /* ---------- Debug ---------- */
 function dbgGive(v,label){S.cheated=true;addBits(v);SFX.buy();Circuit.burst(12);toast(T.dbg.debugT||'Debug',`${label}: +${fmt(v)}`);render()}
 (function(){
+  if(!DEBUG)return;
   const box=$('dbgGrid');
   const mk=(txt,fn,title)=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=txt;if(title)b.title=title;b.addEventListener('click',fn);box.appendChild(b)};
   const D=T.dbg;
@@ -2098,6 +2103,7 @@ function extrasInit(){
   initRank();
 }
 (function(){
+  if(!DEBUG)return;
   const box=$('dbgGrid');
   const mk=(txt,fn)=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=txt;b.addEventListener('click',()=>{S.cheated=true;fn()});box.appendChild(b)};
   const D=T.dbg;
