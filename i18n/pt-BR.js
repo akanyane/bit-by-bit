@@ -1,4 +1,4 @@
-/* Bit a Bit — Português (Brasil). Texto original do jogo. */
+/* Bit by Bit — Português (Brasil). Texto original do jogo. */
 window.I18N = window.I18N || {};
 I18N['pt-BR'] = {
   name: 'Português', locale: 'pt-BR', htmlLang: 'pt-BR',

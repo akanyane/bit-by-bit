@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bit a Bit</title>
+<title>Bit by Bit</title>
 <meta name="description" content="Start with one bit. Find out what lies beyond the last byte. An incremental browser game in 7 languages.">
 <meta name="theme-color" content="#1d6b43">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -378,7 +378,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 </head>
 <body>
 <header class="top">
-  <h1 class="logo" id="logo">Bit a Bit</h1>
+  <h1 class="logo" id="logo" translate="no">Bit by Bit</h1>
   <p class="tag" data-i18n="tagline"></p>
   <label class="lang"><span class="vh" data-i18n="langLabel"></span><select id="langSel"></select></label>
   <button class="sound" id="musicBtn" aria-pressed="false"></button>
@@ -494,7 +494,7 @@ button:focus-visible{outline:2px solid var(--copper-hi);outline-offset:3px}
 </main>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<button class="hud" id="hud" data-i18n-aria="ariaHud"><span class="hud-logo">Bit a Bit</span><span class="hud-amt" id="hudAmt"></span><span class="hud-rate" id="hudRate"></span></button>
+<button class="hud" id="hud" data-i18n-aria="ariaHud"><span class="hud-logo" translate="no">Bit by Bit</span><span class="hud-amt" id="hudAmt"></span><span class="hud-rate" id="hudRate"></span></button>
 <div class="modal" id="modal" hidden><div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="mhead"><h2 id="mTitle"></h2><span id="mTime"></span></div><div class="mbar"><div id="mBar"></div></div><p class="msub" id="mSub"></p><div id="mBody"></div><div class="mfoot"><button class="btn ghost" id="mClose" data-i18n="giveUp"></button></div></div></div>
 <div class="splash" id="splash" hidden><pre id="splashText"></pre></div>
 
@@ -1352,7 +1352,7 @@ function render(){
   setText($('stAlgos'),`${fmtCount(S.algos)} (×${multStr()})`);
   setText($('stTime'),fmtTime(S.played));
   renderExtras();
-  document.title=`${fmt(S.bits)} | Bit a Bit`;
+  document.title=`${fmt(S.bits)} | Bit by Bit`;
   Circuit.update({l2:bps>0n?(log10Big(bps)-3)*LOG2_10:-Infinity,types:G.filter(g=>S.owned[g.id]>0).length,era:S.era,buff:prodBuff()>1n||clickBuff()>1n});
 }
 
@@ -1931,7 +1931,7 @@ function splash(){
   let skip=false;try{skip=!!sessionStorage.getItem('bit-a-bit-nosplash');sessionStorage.removeItem('bit-a-bit-nosplash')}catch(e){}
   if(reduce.matches||skip)return;
   const el=$('splash'),pre=$('splashText');el.hidden=false;
-  const B=T.boot,lines=['BIT A BIT BIOS v5.0',B.mem,B.comps(ownedTotal().toLocaleString(LOC)),
+  const B=T.boot,lines=['BIT BY BIT BIOS v5.0',B.mem,B.comps(ownedTotal().toLocaleString(LOC)),
     S.lore.length>2?B.signal:B.quiet,B.era(ERAS[S.era].name),B.start];
   let i=0,closed=false;
   const iv=setInterval(()=>{if(i<lines.length)pre.textContent+=lines[i++]+'\n';else{clearInterval(iv);setTimeout(close,400)}},170);

@@ -1,4 +1,4 @@
-/* Bit a Bit — 한국어 */
+/* Bit by Bit — 한국어 */
 window.I18N = window.I18N || {};
 // 받침 여부에 따라 조사를 고른다 (예: 스위치가 / 진공관이).
 const koJosa = (w, withBatchim, without) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return w + (c >= 0 && c < 11172 && c % 28 ? withBatchim : without); };

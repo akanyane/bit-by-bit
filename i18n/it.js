@@ -1,4 +1,4 @@
-/* Bit a Bit — Italiano. */
+/* Bit by Bit — Italiano. */
 window.I18N = window.I18N || {};
 I18N.it = {
   name: 'Italiano', locale: 'it-IT', htmlLang: 'it',

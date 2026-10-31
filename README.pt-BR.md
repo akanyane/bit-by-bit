@@ -1,6 +1,6 @@
-<p align="center"><img src="favicon.svg" width="96" alt="Logo do Bit a Bit: um chip com o número 1"></p>
+<p align="center"><img src="favicon.svg" width="96" alt="Logo do Bit by Bit: um chip com o número 1"></p>
 
-# Bit a Bit
+# Bit by Bit
 
 **Comece com um bit. Descubra o que existe depois do último byte.**
 
